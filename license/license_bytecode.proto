@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+// 导入Google的Any类型支持扩展字段
+import "google/protobuf/any.proto";
+
+option go_package = "github.com/your/package/license";
+option java_package = "com.example.license";
+option java_outer_classname = "LicenseBytecodeProto";
+option java_multiple_files = true;
+option objc_class_prefix = "LicenseBytecode";
+
+package license;
+
+// 文件头结构
+message LicenseHeader {
+  fixed32 magic_number = 1;       // 魔数（标识文件类型）
+  uint32 version = 2;             // 格式版本号
+  uint32 header_length = 3;       // 头部长度
+  uint32 payload_length = 4;      // 授权内容长度
+  uint32 signature_length = 5;    // 签名长度
+  bytes reserved = 6;             // 保留字段
+}
+
+// 授权内容
+message LicensePayload {
+  bytes license_id = 1;           // 授权ID（UUID或自定义格式）
+  string product_id = 2;          // 产品标识
+  LicenseType license_type = 3;   // 授权类型
+  uint64 expiry_time = 4;         // 有效期（Unix时间戳）
+  bytes hardware_fingerprint = 5; // 硬件指纹（用于设备绑定）
+
+  // 功能模块控制（兼容32位和扩展格式）
+  oneof feature_control {
+    uint32 feature_mask_32 = 6;   // 32位功能掩码
+    uint64 feature_mask_64 = 7;   // 64位功能掩码
+    FeatureRegistry feature_registry = 8; // 新版功能注册表
+  }
+
+  reserved 9;
+
+  // 附加信息（键值对）
+  map<string, string> extra_info = 10;
+}
+
+// 授权类型枚举
+enum LicenseType {
+  TRIAL = 0;      // 试用版
+  FULL = 1;       // 正式版
+  ENTERPRISE = 2; // 企业版
+  CUSTOM = 3;     // 自定义
+}
+
+// 签名信息
+message LicenseSignature {
+  SignatureAlgorithm algorithm = 1; // 签名算法
+  bytes signature = 2;              // 签名值
+  bytes public_key = 3;             // 公钥（可选）
+}
+
+// 签名算法枚举
+enum SignatureAlgorithm {
+  RSA_SHA256 = 0;   // RSA-SHA256
+  ECDSA_P256 = 1;   // ECDSA-P256
+  HMAC_SHA256 = 2;  // HMAC-SHA256
+}
+
+// 完整授权文件结构
+message LicenseFile {
+  LicenseHeader header = 1;         // 文件头
+  LicensePayload payload = 2;       // 授权内容
+  LicenseSignature signature = 3;   // 签名信息
+
+  // 扩展字段（使用Google的Any类型）
+  repeated google.protobuf.Any extensions = 4;
+}
+
+// 功能点信息
+message FeatureInfo {
+  uint64 index = 1;          // 功能点索引（64位，解决32位不足问题）
+  string name = 2;           // 功能点名称（唯一标识）
+  string description = 3;    // 功能点描述
+  string group = 4;          // 功能点分组（如 "security", "network"）
+}
+
+// 功能点注册表
+message FeatureRegistry {
+  uint32 version = 1;        // 版本号（用于兼容性管理）
+  repeated FeatureInfo features = 2; // 功能点列表
+}
