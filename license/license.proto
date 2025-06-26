@@ -1,0 +1,116 @@
+edition = "2024";
+
+package authorization;
+
+// 常量池项
+message ConstantPoolItem {
+    enum ConstantType {
+        CONSTANT_UTF8 = 1;
+        CONSTANT_INTEGER = 2;
+        CONSTANT_LONG = 3;
+        CONSTANT_FLOAT = 4;
+        CONSTANT_DOUBLE = 5;
+    }
+    ConstantType tag = 1;
+    bytes data = 2;
+}
+
+// 授权属性
+message AuthorizationAttribute {
+    uint32 type = 1;
+    uint32 value_length = 2;
+    bytes value = 3;
+}
+
+// 授权信息块
+message AuthorizationInfoBlock {
+    uint32 user_identifier_index = 1;
+    uint32 product_identifier_index = 2;
+    uint32 authorization_start_time = 3;
+    uint32 authorization_end_time = 4;
+    uint32 feature_flags = 5;
+    uint32 max_uses = 6;
+    uint32 current_uses = 7;
+    uint32 attribute_count = 8;
+    repeated AuthorizationAttribute attributes = 9;
+}
+
+// 安全块
+message SecurityBlock {
+    uint32 signature_algorithm_id = 1;
+    uint32 signature_length = 2;
+    bytes signature_data = 3;
+    uint32 encryption_algorithm_id = 4;
+    uint32 encrypted_data_length = 5;
+    bytes encrypted_data = 6;
+}
+
+// 扩展块
+message ExtensionBlock {
+    uint32 extension_type = 1;
+    uint32 extension_data_length = 2;
+    bytes extension_data = 3;
+}
+
+// 授权文件
+message LicenseFile {
+    fixed32 magic_number = 1;
+    uint32 minor_version = 2;
+    uint32 major_version = 3;
+    uint32 constant_pool_count = 4;
+    uint32 authorization_info_offset = 5;
+    uint32 security_offset = 6;
+    uint32 total_length = 7;
+    repeated ConstantPoolItem constant_pool = 8;
+    AuthorizationInfoBlock authorization_info_block = 9;
+    SecurityBlock security_block = 10;
+    ExtensionBlock extension_block = 11;
+}
+
+/* 注册文件信息 */
+message Registration {
+
+    message Information {
+        string machine_code = 1 [json_name = "machinecode"];
+        string mac_address = 2 [json_name = "macaddress"];
+        string app_name = 3 [json_name = "appname"];
+        string version = 4 [json_name = "version"];
+
+        string vendor = 5 [json_name = "vendor"];
+    }
+
+    oneof ref {
+        bytes raw = 1;
+        Information detail = 2;
+    }
+
+    optional string content_hash = 3;
+}
+
+message LicenseRequest {
+    /* 注册信息 */
+    Registration registration = 1;
+
+    /* 访问令牌 */
+    optional string access_token = 2;
+
+    /* 动态密码 */
+    optional string code = 3;
+}
+
+message LicenseResponse {
+    /* 文件名称(不含扩展名) */
+    string file_name = 1;
+    /* 文件扩展名 */
+    optional string file_ext = 2;
+    /* 授权截止时间 */
+    optional string deadline = 3;
+    /* 授权内容 */
+    bytes file_contents = 4;
+    /* 注册文件签名 */
+    optional string registration_sign = 5;
+}
+
+service LicenseService {
+    rpc GetLicenseFile (LicenseRequest) returns (LicenseResponse) {}
+}
