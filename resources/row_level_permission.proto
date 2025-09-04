@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package permission;
+
+option java_multiple_files = true;
+option java_package = "com.example.permission";
+option java_outer_classname = "RowLevelPermissionProto";
+
+// 行级权限枚举（对应RowLevelPermissionEnum）
+enum RowLevelPermissionType {
+    // 无权限（默认值）
+    ROW_LEVEL_PERMISSION_NONE = 0;
+    // 个人级：仅访问当前用户创建/归属的数据
+    ROW_LEVEL_PERMISSION_PERSONAL = 1;
+    // 本部门级：仅访问当前用户所属部门数据（不含下属）
+    ROW_LEVEL_PERMISSION_DEPARTMENT_SELF = 2;
+    // 部门及下属级：访问当前部门及所有下属部门数据
+    ROW_LEVEL_PERMISSION_DEPARTMENT_AND_SUB = 3;
+    // 指定部门级：访问管理员指定的多个部门数据
+    ROW_LEVEL_PERMISSION_SPECIFIC_DEPARTMENTS = 4;
+    // 租户级：多租户场景下访问当前租户所有数据
+    ROW_LEVEL_PERMISSION_TENANT = 5;
+    // 全系统级：访问系统内所有数据
+    ROW_LEVEL_PERMISSION_GLOBAL = 6;
+    // 自定义条件级：访问满足自定义条件的数据
+    ROW_LEVEL_PERMISSION_CUSTOM_CONDITION = 7;
+    // 角色继承级：权限范围跟随角色继承
+    ROW_LEVEL_PERMISSION_ROLE_INHERITED = 8;
+}
+
+// 行级权限详细信息（包含枚举元数据，用于前端展示/权限说明）
+message RowLevelPermissionInfo {
+    // 权限类型枚举值
+    RowLevelPermissionType permission_type = 1;
+    // 中文名称（如"个人级"）
+    string label = 2;
+    // 权限规则描述
+    string description = 3;
+}
+
+// 行级权限配置（用于用户/角色的权限配置）
+message RowLevelPermissionConfig {
+    // 基础权限类型
+    RowLevelPermissionType permission_type = 1;
+
+    // 以下字段根据permission_type动态生效
+
+    // 当permission_type为SPECIFIC_DEPARTMENTS时，指定的部门ID列表
+    repeated string specific_department_ids = 2;
+
+    // 当permission_type为CUSTOM_CONDITION时，自定义过滤条件（如"create_time > '2024-01-01' AND status = 1"）
+    // 注意：实际使用中需做SQL注入校验
+    string custom_condition = 3;
+
+    // 当permission_type为ROLE_INHERITED时，继承的角色ID
+    string inherited_role_id = 4;
+}
+
+// 数据查询时的行级权限过滤条件（由权限系统生成，用于数据访问层过滤）
+message RowLevelFilter {
+    // 权限类型
+    RowLevelPermissionType permission_type = 1;
+    // 生成的过滤条件SQL片段（如"create_user_id = '123'"）
+    string filter_sql = 2;
+    // 关联的用户ID（用于日志和审计）
+    string user_id = 3;
+    // 关联的角色ID列表
+    repeated string role_ids = 4;
+}

@@ -100,7 +100,7 @@ enum SignatureAlgorithm {
 
 // 完整授权文件结构
 message LicenseFile {
-    //    LicenseHeader header = 1;                       // 文件头
+    LicenseHeader header = 1;                       // 文件头
     repeated ConstantPoolItem constant_pool = 2;    // 常量池
     LicensePayload payload = 3;                     // 授权内容
     LicenseSignature signature = 4;                 // 签名信息

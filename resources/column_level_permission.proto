@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package permission;
+
+option java_multiple_files = true;
+option java_package = "com.example.permission";
+option java_outer_classname = "ColumnLevelPermissionProto";
+
+// 列级权限类型枚举
+enum ColumnLevelPermissionType {
+    // 无访问权限（默认值）
+    COLUMN_PERMISSION_NONE = 0;
+    // 只读权限：可查看，不可修改
+    COLUMN_PERMISSION_READ_ONLY = 1;
+    // 读写权限：可查看且可修改
+    COLUMN_PERMISSION_READ_WRITE = 2;
+    // 隐藏权限：完全不显示，不返回
+    COLUMN_PERMISSION_HIDDEN = 3;
+    // 脱敏只读权限：可查看但内容脱敏
+    COLUMN_PERMISSION_MASKED_READ = 4;
+    // 条件写权限：满足条件时可修改
+    COLUMN_PERMISSION_CONDITIONAL_WRITE = 5;
+}
+
+// 脱敏规则（当权限类型为MASKED_READ时生效）
+message MaskingRule {
+    // 脱敏类型
+    enum MaskingType {
+        MASKING_NONE = 0;
+        // 部分替换（如手机号：138****5678）
+        PARTIAL_REPLACE = 1;
+        // 全部替换（如密码：******）
+        FULL_REPLACE = 2;
+        // 哈希处理（如MD5哈希，不可逆）
+        HASH = 3;
+        // 自定义规则（通过正则表达式）
+        CUSTOM_REGEX = 4;
+    }
+
+    MaskingType masking_type = 1;
+    // 部分替换时的保留长度（如手机号保留前3后4：prefix=3, suffix=4）
+    int32 prefix_keep_length = 2; // 前缀保留长度
+    int32 suffix_keep_length = 3; // 后缀保留长度
+  // 替换字符（如'*'）
+    string replace_char = 4; // 默认'*'
+  // 自定义正则表达式（如手机号："(\\d{3})\\d{4}(\\d{4})" → "$1****$2"）
+    string custom_regex = 5;
+    string custom_replacement = 6;
+}
+
+// 字段级权限配置项（单个字段的权限）
+message ColumnPermissionItem {
+    // 字段唯一标识（如数据库列名、业务字段ID）
+    string column_id = 1;
+    // 字段名称（用于前端展示，如"手机号"）
+    string column_name = 2;
+    // 该字段的权限类型
+    ColumnLevelPermissionType permission_type = 3;
+    // 脱敏规则（仅当permission_type为MASKED_READ时生效）
+    MaskingRule masking_rule = 4;
+    // 条件写权限的触发条件（仅当permission_type为CONDITIONAL_WRITE时生效）
+    // 如"order_status == 'PENDING_REVIEW'"
+    string write_condition = 5;
+}
+
+// 列级权限配置（某个角色/用户对某类数据的列权限集合）
+message ColumnLevelPermissionConfig {
+    // 数据对象标识（如"employee"表、"customer"业务对象）
+    string data_object_id = 1;
+    // 该数据对象下的字段权限列表
+    repeated ColumnPermissionItem column_permissions = 2;
+}
+
+// 列级权限过滤结果（数据查询时返回的字段权限信息）
+message ColumnFilterResult {
+    // 数据对象标识
+    string data_object_id = 1;
+    // 允许返回的字段ID列表（过滤无权限的字段）
+    repeated string allowed_column_ids = 2;
+    // 需要脱敏的字段及规则（key: column_id, value: MaskingRule）
+    map<string, MaskingRule> masking_columns = 3;
+    // 允许修改的字段ID列表（用于编辑操作校验）
+    repeated string writable_column_ids = 4;
+}
