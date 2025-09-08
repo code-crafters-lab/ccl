@@ -1,0 +1,26 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "RouteProto";
+option java_multiple_files = true;
+
+package resources.route;
+
+import "auth/authority.proto";
+//import "resources/data/access.proto";
+//import "resources/opts/operation.proto";
+
+
+/**
+ * 页面路由（前端页面的具体定义）
+ */
+message PageRoute {
+    string id = 1;                                  // 路由 ID
+    string path = 2;                                // 路由路径（如“/pages/user/list”）
+    string template = 3;                            // HTML 模板/组件名称（如“UserList.vue”）
+    string config = 4;                              // 页面配置（JSON 字符串）
+    auth.AuthorityMetadata authority_metadata = 5;   // 权限标识
+//    repeated opts.Operation operations = 6;          // 页面关联的操作按钮
+//    repeated data.DataAccess data = 7;                // 页面关联的数据权限
+}

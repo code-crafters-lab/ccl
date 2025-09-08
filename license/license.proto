@@ -1,10 +1,11 @@
-edition = "2024";
+edition = "2023";
 
 package authorization;
 
 // 常量池项
 message ConstantPoolItem {
     enum ConstantType {
+        CONSTANT_UNKNOWN = 0;
         CONSTANT_UTF8 = 1;
         CONSTANT_INTEGER = 2;
         CONSTANT_LONG = 3;
@@ -84,7 +85,7 @@ message Registration {
         Information detail = 2;
     }
 
-    optional string content_hash = 3;
+    string content_hash = 3;
 }
 
 message LicenseRequest {
@@ -92,23 +93,23 @@ message LicenseRequest {
     Registration registration = 1;
 
     /* 访问令牌 */
-    optional string access_token = 2;
+    string access_token = 2;
 
     /* 动态密码 */
-    optional string code = 3;
+    string code = 3;
 }
 
 message LicenseResponse {
     /* 文件名称(不含扩展名) */
     string file_name = 1;
     /* 文件扩展名 */
-    optional string file_ext = 2;
+    string file_ext = 2;
     /* 授权截止时间 */
-    optional string deadline = 3;
+    string deadline = 3;
     /* 授权内容 */
     bytes file_contents = 4;
     /* 注册文件签名 */
-    optional string registration_sign = 5;
+    string registration_sign = 5;
 }
 
 service LicenseService {

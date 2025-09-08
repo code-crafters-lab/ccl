@@ -1,0 +1,85 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "RouteProto";
+option java_multiple_files = true;
+
+package resources;
+
+import "auth/authority.proto";
+import "auth/data_access.proto";
+import "auth/operation.proto";
+import "resources/app.proto";
+import "resources/menu.proto";
+import "resources/route/api.proto";
+import "resources/route/link.proto";
+import "resources/route/page.proto";
+
+/**
+ * 资源类型
+ */
+enum ResourceType {
+    // 系统（应用）资源
+    RESOURCE_TYPE_APP = 0;
+    // 菜单资源
+    RESOURCE_TYPE_MENU = 1;
+    // 操作资源
+    RESOURCE_TYPE_OPERATION = 2;
+    // 数据资源
+    RESOURCE_TYPE_DATA_ACCESS = 3;
+    // 接口资源
+    RESOURCE_TYPE_API = 4;
+    // 外链资源
+    RESOURCE_TYPE_EXTERNAL_LINK = 5;
+    // 页面资源
+    RESOURCE_TYPE_PAGE = 6;
+}
+
+/**
+ * urn:[租户]:[应用]:[资源类型]:[资源唯一ID]:[扩展属性]
+ */
+message ResourceUrn {
+    // 租户 ID
+    string tenant_id = 1;
+    // 应用 ID
+    string app_id = 2;
+    // 资源类型
+    ResourceType resource_type = 3;
+    // 资源唯一 ID
+    string resource_id = 4;
+    // 权限描述
+    auth.AuthorityMetadata authority_metadata =  5;
+    // 扩展属性
+    string ext = 6;
+}
+
+message Resource {
+    string authority_id = 1;            // 权限 ID
+    string id = 2;                      // 资源 ID
+    string pid = 3;                     // 父资源 ID
+    ResourceType type = 4;              // 资源类型
+    string name = 5;                    // 资源名称
+    int32 sort = 6;                     // 资源排序
+    oneof data {                        // 资源数据
+        App app = 11;                   // 应用资源
+        Menu menu = 12;                 // 菜单资源
+        auth.Operation operation = 13;       // 操作资源
+        auth.DataAccess data_access = 14;     // 数据资源
+        route.ApiRoute api = 15;        // 接口资源
+        route.LinkRoute link = 16;      // 外链资源
+        route.PageRoute page = 17;      // 页面资源
+    }
+    repeated Resource children = 7;    // 子资源集合
+
+    reserved 8 to 10, 18 to 20;
+}
+
+
+
+
+
+
+
+
+

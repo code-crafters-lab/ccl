@@ -1,0 +1,20 @@
+# For details on buf.yaml configuration, visit https://buf.build/docs/configuration/v2/buf-yaml
+version: v2
+lint:
+  use:
+    - MINIMAL
+  ignore:
+    - license
+#    - resources/app.proto
+#    - resources/authority.proto
+#    - resources/data.proto
+#    - resources/menu.proto
+#    - resources/operation.proto
+#    - resources/resource.proto
+#    - resources/route.proto
+#    - resources/route/api.proto
+#    - resources/route/link.proto
+#    - resources/route/page.proto
+breaking:
+  use:
+    - FILE

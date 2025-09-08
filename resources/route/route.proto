@@ -1,0 +1,39 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "RouteProto";
+option java_multiple_files = true;
+
+package resources.route;
+
+import "resources/route/api.proto";
+import "resources/route/link.proto";
+import "resources/route/page.proto";
+
+
+/**
+ * 路由类型（所有路由的统一分类标识）
+ */
+enum RouteType {
+    ROUTE_TYPE_UNKNOWN = 0;        // 未知类型
+    ROUTE_TYPE_PAGE = 1;           // 页面路由
+    ROUTE_TYPE_API = 2;            // API路由
+    ROUTE_TYPE_EXTERNAL_LINK = 3;  // 外链路由
+}
+
+/**
+ * 路由顶层结构（统一封装所有路由类型，通过 one of 实现“多态”）
+ */
+message Route {
+    string id = 1;                  // 路由 ID
+    RouteType type = 2;             // 路由类型（关联 RouteType 枚举）
+                                    // 路由具体数据（仅选一种类型）
+    oneof data {
+        route.ApiRoute api = 4;           // API 路由
+        route.PageRoute page = 5;         // 页面路由
+        route.LinkRoute link = 6;         // 外链路由
+    }
+}
+
+

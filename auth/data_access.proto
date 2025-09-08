@@ -1,0 +1,26 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "RouteProto";
+option java_multiple_files = true;
+
+package auth;
+
+message DataAccess {
+    // todo 设计支持行级权限与列级权限
+    string id = 1; // 数据 ID
+    string code = 2; // 编码
+    string name = 3; // 名称
+    string description = 4; // 描述
+}
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,47 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "RouteProto";
+option java_multiple_files = true;
+
+package auth;
+
+import "auth/authority.proto";
+
+message InnerOperation {
+    string id = 1;                                  // 操作 ID
+    string name = 2;                                // 操作按钮名称
+    auth.AuthorityMetadata authority_metadata = 3;  // 权限元数据
+    string icon = 4;                                // 操作按钮图标
+    string description = 8;                         // 操作按钮描述
+}
+
+/**
+ * 页面操作按钮
+ */
+message Operation {
+    string id = 1;                                  // 操作 ID
+    string name = 2;                                // 操作按钮名称
+    auth.AuthorityMetadata authority_metadata = 3;  // 权限元数据
+    string icon = 4;                                // 操作按钮图标
+    repeated Location location = 5;                 // 操作按钮位置
+//    resources.route.ApiRoute api = 6;                         // 操作按钮关联的接口资源
+    int32 sort = 7;                                 // 操作按钮排序
+    string description = 8;                         // 操作按钮描述
+    InnerOperation ref = 9;                         // 内部操作按钮引用
+
+    enum Location {
+        UNKNOWN = 0;                            // 未知位置
+        TOOL_BAR = 1;                           // 工具栏
+        ACTION_BAR = 2;                         // 操作栏
+    }
+}
+
+
+
+
+
+
+
+

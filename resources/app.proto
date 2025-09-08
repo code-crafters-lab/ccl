@@ -1,0 +1,35 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "AppProto";
+option java_multiple_files = true;
+
+package resources;
+
+import "google/protobuf/any.proto";
+import "resources/menu.proto";
+import "resources/route/route.proto";
+
+/**
+ * 应用资源
+ */
+message App {
+    string id = 1;                          // 应用 ID
+    string name = 2;                        // 应用名称
+    string description = 3;                 // 应用描述
+    google.protobuf.Any configuration = 4;  // 应用相关配置
+    repeated Menu menus = 5;                // 菜单列表
+    repeated route.Route routes = 6;              // 路由列表（包含菜单中未匹配上路由）
+
+    reserved 7 to 10;
+}
+
+
+
+
+
+
+
+
+

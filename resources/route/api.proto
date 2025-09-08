@@ -1,0 +1,24 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "RouteProto";
+option java_multiple_files = true;
+
+package resources.route;
+
+import "auth/authority.proto";
+
+/**
+ * API 路由（后端接口的具体定义）
+ */
+message ApiRoute {
+    string id = 1;                                  // 接口唯一标识
+    string name = 2;                                // 接口名称（如“删除用户”）
+    string method = 3;                              // 请求方法（GET/POST/DELETE）
+    string path = 4;                                // 接口路径（仅 path 部分，如“/api/v1/user/{id}”）
+    auth.AuthorityMetadata authority_metadata = 5;  // 权限标识
+    string classify = 6;                            // 接口分类（如“用户管理”）
+    reserved 7 to 10;                               // 预留字段
+}
+

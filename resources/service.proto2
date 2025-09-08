@@ -1,0 +1,65 @@
+edition = "2023";
+
+
+package resources;
+
+import "google/protobuf/empty.proto";
+import "resources/resource.proto";
+
+message ResourceTreeRequest {
+    // 树形数据根节点 ID
+    string root = 1;
+    // 树形数据展示层级
+    int32 level = 2;
+    // 排除类型
+    repeated ResourceType exclude_type = 3;
+}
+
+message ResourceTreeResponse {
+    repeated Resource resources = 1;
+}
+
+message ResourceCreateRequest {
+    repeated Resource resources = 1;
+}
+
+message ResourceCreateResponse {
+    repeated string resource_ids = 1;
+}
+
+message ResourceUpdateRequest {
+    repeated Resource resources = 1;
+}
+
+message ResourceUpdateResponse {
+    repeated string resource_ids = 1;
+}
+
+message ResourceDeleteRequest {
+    repeated string resources_ids = 1;
+}
+
+message ResourceDeleteResponse {
+    repeated bool status = 1;
+}
+
+
+//service ResourceService {
+//    // 获取资源树
+//    rpc GetResourceTree (ResourceTreeRequest) returns (ResourceTreeResponse);
+//
+//    // 创建资源
+//    rpc CreateResource (ResourceCreateRequest) returns (ResourceCreateResponse);
+//
+//    // 更新资源
+//    rpc UpdateResource (ResourceUpdateRequest) returns (ResourceUpdateResponse);
+//
+//    // 删除资源
+//    rpc DeleteResource (ResourceDeleteRequest) returns (ResourceDeleteResponse);
+//
+//    // 获取路由
+//    rpc GetRoutes (google.protobuf.Empty) returns (google.protobuf.Empty);
+//
+//    // 获取页面路由
+//    rpc GetPageRoute (google.protobuf.Empty) returns (google.protobuf.Empty);
+//}

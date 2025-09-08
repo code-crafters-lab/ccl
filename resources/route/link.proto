@@ -1,0 +1,22 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "RouteProto";
+option java_multiple_files = true;
+
+package resources.route;
+
+import "auth/authority.proto";
+
+/**
+ * 外链路由（外部链接的具体定义）
+ */
+message LinkRoute {
+    string id = 1;                              // 外链 ID
+    string name = 2;                            // 外链名称
+    string url = 3;                             // 外链完整 URL
+    auth.AuthorityMetadata authority_metadata = 4;   // 权限标识
+    string description = 5;                     // 外链描述（可选）
+}
+
