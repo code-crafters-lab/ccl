@@ -20,7 +20,7 @@ message App {
     string description = 3;                 // 应用描述
     google.protobuf.Any configuration = 4;  // 应用相关配置
     repeated Menu menus = 5;                // 菜单列表
-    repeated route.Route routes = 6;              // 路由列表（包含菜单中未匹配上路由）
+    repeated route.Route routes = 6;        // 路由列表（包含菜单中未匹配上路由）
 
     reserved 7 to 10;
 }

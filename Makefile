@@ -25,3 +25,7 @@ db-prod:
 	t_authority t_role_authority_rel \
 	t_dict t_file \
 	> teamwork-prod.sql
+
+
+init:
+	buf config init buf.build/ccl/dict -o dict

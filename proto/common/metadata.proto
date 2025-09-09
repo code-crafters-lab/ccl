@@ -1,0 +1,38 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/idl/resources";
+option java_package = "org.ccl.resources";
+option java_outer_classname = "MetadataProto";
+option java_multiple_files = true;
+
+package ccl.common.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// 基础元信息（适用于大多数业务实体）
+message Metadata {
+    // 创建人（通常是用户ID或账号）
+    string created_by = 1;
+    // 创建时间
+    google.protobuf.Timestamp created_at = 2;
+    // 最后修改人
+    string updated_by = 3;
+    // 最后修改时间
+    google.protobuf.Timestamp updated_at = 4;
+    // 拥有者（资源归属者，可能与创建人不同）
+    string owner = 5;
+    // 状态（如：ACTIVE, INACTIVE, DELETED 等）
+    string status = 6;
+    // 备注/描述信息
+    string description = 7;
+    // 扩展字段（用于存储自定义元数据，如标签、权限标识等）
+    map<string, string> labels = 8;
+}
+
+
+
+
+
+
+
+

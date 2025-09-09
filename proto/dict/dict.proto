@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package ccl.dict.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/descriptor.proto";
+import "google/protobuf/timestamp.proto";
+
+// 数据元素定义
+message DataElement {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string data_type = 4;
+    int32 length = 5;
+    bool required = 6;
+    string default_value = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+}
+
+// 数据集合定义
+message DataCollection {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    repeated string element_ids = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
+}
+
+// 请求和响应消息
+message GetDataElementRequest {
+    string element_id = 1;
+}
+
+message GetDataElementResponse {
+    DataElement element = 1;
+}
+
+message ListDataElementsRequest {
+    int32 page_size = 1;
+    string page_token = 2;
+}
+
+message ListDataElementsResponse {
+    repeated DataElement elements = 1;
+    string next_page_token = 2;
+}
+
+message CreateDataElementRequest {
+    DataElement element = 1;
+}
+
+message CreateDataElementResponse {
+    DataElement element = 1;
+}
+
+message UpdateDataElementRequest {
+    DataElement element = 1;
+}
+
+message UpdateDataElementResponse {
+    DataElement element = 1;
+}
+
+message DeleteDataElementRequest {
+    string element_id = 1;
+}
+
+message DeleteDataElementResponse {
+    bool success = 1;
+}
+
+// 数据字典服务
+service DataDictionaryService {
+    rpc GetDataElement(GetDataElementRequest) returns (GetDataElementResponse) {
+        option (google.api.http) = {
+            get: "/v1/elements/{element_id}"
+        };
+    }
+
+    rpc ListDataElements(ListDataElementsRequest) returns (ListDataElementsResponse) {
+        option (google.api.http) = {
+            get: "/v1/elements"
+        };
+    }
+
+    rpc CreateDataElement(CreateDataElementRequest) returns (CreateDataElementResponse) {
+        option (google.api.http) = {
+            post: "/v1/elements"
+            body: "element"
+        };
+    }
+
+    rpc UpdateDataElement(UpdateDataElementRequest) returns (UpdateDataElementResponse) {
+        option (google.api.http) = {
+            put: "/v1/elements/{element.id}"
+            body: "element"
+        };
+    }
+
+    rpc DeleteDataElement(DeleteDataElementRequest) returns (DeleteDataElementResponse) {
+        option (google.api.http) = {
+            delete: "/v1/elements/{element_id}"
+        };
+    }
+}

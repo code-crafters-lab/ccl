@@ -1,0 +1,205 @@
+edition = "2023";
+
+
+package file.transfer.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// 文件元数据信息
+message FileMetadata {
+    string file_id = 1;           // 文件唯一标识
+    string file_name = 2;         // 文件名
+    string content_type = 3;      // 文件类型(MIME类型)
+    int64 file_size = 4;          // 文件总大小(字节)
+    int32 total_chunks = 5;       // 总分片数
+    int32 chunk_size = 6;         // 每个分片大小(字节)
+    string md5_hash = 7;          // 文件整体MD5校验值
+    string status = 10;           // 文件状态(UPLOADING, COMPLETE, FAILED, EXPIRED)
+    string owner = 11;            // 文件拥有者(用户ID)
+    google.protobuf.Timestamp created_at = 8;  // 创建时间
+    google.protobuf.Timestamp updated_at = 9;  // 更新时间
+}
+
+// 分片信息
+message ChunkInfo {
+    string file_id = 1;           // 文件ID
+    int32 chunk_index = 2;        // 分片索引(从0开始)
+    bytes chunk_data = 3;         // 分片数据
+    int32 chunk_size = 4;         // 本分片实际大小(最后一个分片可能小于chunk_size)
+    string chunk_md5 = 5;         // 分片MD5校验值
+}
+
+// 初始化上传请求
+message InitUploadRequest {
+    string file_name = 1;         // 文件名
+    string content_type = 2;      // 文件类型
+    int64 file_size = 3;          // 文件总大小
+    string md5_hash = 4;          // 文件整体MD5
+    int32 chunk_size = 5;         // 期望的分片大小，服务端可能调整
+    string owner = 6;             // 上传者ID
+}
+
+// 初始化上传响应
+message InitUploadResponse {
+    string file_id = 1;           // 分配的文件ID
+    int32 total_chunks = 2;       // 计算后的总分片数
+    int32 chunk_size = 3;         // 服务端确认的分片大小
+    google.protobuf.Timestamp expires_at = 4;  // 上传会话过期时间
+}
+
+// 上传分片请求
+message UploadChunkRequest {
+    ChunkInfo chunk = 1;          // 分片信息
+}
+
+// 上传分片响应
+message UploadChunkResponse {
+    string file_id = 1;           // 文件ID
+    int32 chunk_index = 2;        // 已上传的分片索引
+    bool success = 3;             // 是否成功
+    string message = 4;           // 状态消息
+    int32 uploaded_chunks = 5;    // 已上传分片总数
+    int32 total_chunks = 6;       // 总分片数
+}
+
+// 检查已上传分片请求(用于续传)
+message CheckUploadedChunksRequest {
+    string file_id = 1;           // 文件ID
+}
+
+// 检查已上传分片响应
+message CheckUploadedChunksResponse {
+    string file_id = 1;           // 文件ID
+    repeated int32 uploaded_chunk_indices = 2;  // 已上传的分片索引列表
+    int32 total_chunks = 3;       // 总分片数
+    string status = 4;            // 当前上传状态
+    google.protobuf.Timestamp expires_at = 5;   // 上传会话过期时间
+}
+
+// 完成上传请求
+message CompleteUploadRequest {
+    string file_id = 1;           // 文件ID
+}
+
+// 完成上传响应
+message CompleteUploadResponse {
+    string file_id = 1;           // 文件ID
+    bool success = 2;             // 是否成功
+    string message = 3;           // 状态消息
+    string file_url = 4;          // 可访问的文件URL(如果成功)
+    FileMetadata metadata = 5;    // 完整的文件元数据
+}
+
+// 取消上传请求
+message CancelUploadRequest {
+    string file_id = 1;           // 文件ID
+}
+
+// 下载文件元数据请求
+message GetFileMetadataRequest {
+    string file_id = 1;           // 文件ID
+}
+
+// 下载分片请求
+message DownloadChunkRequest {
+    string file_id = 1;           // 文件ID
+    int32 chunk_index = 2;        // 分片索引
+}
+
+// 下载分片响应
+message DownloadChunkResponse {
+    ChunkInfo chunk = 1;          // 分片信息
+    int32 remaining_chunks = 2;   // 剩余分片数
+}
+
+// 列出文件请求
+message ListFilesRequest {
+    int32 page_size = 1;          // 每页数量
+    string page_token = 2;        // 分页令牌
+    string owner = 3;             // 按拥有者筛选(可选)
+    string status = 4;            // 按状态筛选(可选)
+}
+
+// 列出文件响应
+message ListFilesResponse {
+    repeated FileMetadata files = 1;  // 文件列表
+    string next_page_token = 2;       // 下一页令牌
+    int32 total_count = 3;            // 总数量
+}
+
+// 删除文件请求
+message DeleteFileRequest {
+    string file_id = 1;           // 文件ID
+}
+
+// 文件传输服务
+service FileTransferService {
+    // 初始化上传，获取文件ID和分片配置
+    rpc InitUpload (InitUploadRequest) returns (InitUploadResponse) {
+        option (google.api.http) = {
+            post: "/v1/files/init-upload"
+            body: "*"
+        };
+    }
+
+    // 上传单个分片
+    rpc UploadChunk (UploadChunkRequest) returns (UploadChunkResponse) {
+        option (google.api.http) = {
+            post: "/v1/files/{chunk.file_id}/chunks"
+            body: "*"
+        };
+    }
+
+    // 检查已上传分片，用于断点续传
+    rpc CheckUploadedChunks (CheckUploadedChunksRequest) returns (CheckUploadedChunksResponse) {
+        option (google.api.http) = {
+            get: "/v1/files/{file_id}/chunks"
+        };
+    }
+
+    // 完成上传，合并分片
+    rpc CompleteUpload (CompleteUploadRequest) returns (CompleteUploadResponse) {
+        option (google.api.http) = {
+            post: "/v1/files/{file_id}/complete"
+            body: "*"
+        };
+    }
+
+    // 取消上传，清理已上传的分片
+    rpc CancelUpload (CancelUploadRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/v1/files/{file_id}/upload"
+        };
+    }
+
+    // 获取文件元数据
+    rpc GetFileMetadata (GetFileMetadataRequest) returns (FileMetadata) {
+        option (google.api.http) = {
+            get: "/v1/files/{file_id}"
+        };
+    }
+
+    // 下载指定分片
+    rpc DownloadChunk (DownloadChunkRequest) returns (DownloadChunkResponse) {
+        option (google.api.http) = {
+            get: "/v1/files/{file_id}/chunks/{chunk_index}"
+        };
+    }
+
+    // 列出文件
+    rpc ListFiles (ListFilesRequest) returns (ListFilesResponse) {
+        option (google.api.http) = {
+            get: "/v1/files"
+        };
+    }
+
+    // 删除文件
+    rpc DeleteFile (DeleteFileRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/v1/files/{file_id}"
+        };
+    }
+}
+
