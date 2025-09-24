@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+package ccl.category.v1;
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/category/v1";
+option java_package = "org.ccl.unity.common";
+option java_multiple_files = true;
+
+message Category {
+  // 分类 ID
+  uint64 id = 1;
+  // 父级分类 ID
+  int64 pid = 2;
+  // 分类名称
+  string name = 3;
+  // 分类排序
+  sint32 sort = 4;
+  // 分类描述
+  string description = 5;
+}
+

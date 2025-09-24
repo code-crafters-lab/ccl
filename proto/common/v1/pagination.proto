@@ -1,0 +1,19 @@
+edition = "2023";
+
+import "zitadel/object/v2beta/object.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+package ccl.common.v1;
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/common/v1";
+option java_package = "org.ccl.unity.common";
+option java_multiple_files = true;
+
+message Pagination {
+    // 当前页数
+    uint32 number = 1;
+    // 每页条数
+    uint32 size = 2;
+}
+
