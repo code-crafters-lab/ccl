@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package ccl.category.v1;
+
+import "buf/validate/validate.proto";
+import "category/v1/category.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/category/v1";
+
+
+service CategoryUserService {
+    rpc CreateCategory (CreateCategoryRequest) returns (CreateCategoryResponse) {
+        option (google.api.http) = {
+            post: "/v1/category"
+            body: "*"
+        };
+    }
+}
+
+message CreateCategoryRequest {
+    // 父级分类 ID
+    uint64 pid = 1 [(buf.validate.field).uint64.gte = 0];
+    // 分类名称
+    string name = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 32];
+    // 分类排序
+    uint32 sort = 3;
+    // 分类描述
+    string description = 4;
+}
+
+message CreateCategoryResponse {
+    repeated Category categories = 1;
+}
+
+

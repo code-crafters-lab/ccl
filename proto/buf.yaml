@@ -1,0 +1,22 @@
+# For details on buf.yaml configuration, visit https://buf.build/docs/configuration/v2/buf-yaml
+version: v2
+name: buf.build/ccl/ccl
+deps:
+  - buf.build/bufbuild/protovalidate # 依赖 buf-validate 模块
+  - buf.build/googleapis/googleapis # 依赖 googleapis 模块
+  - buf.build/grpc-ecosystem/grpc-gateway
+#modules:
+#  - path: proto/category
+#    name: buf.build/ccl/category
+#  - path: proto/common
+#    name: buf.build/ccl/common
+
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - MINIMAL
+  ignore:
+    - dict/dict.proto
+    - oss

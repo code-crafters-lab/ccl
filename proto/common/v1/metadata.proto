@@ -1,13 +1,10 @@
-edition = "2023";
-
-import "google/protobuf/timestamp.proto";
+syntax = "proto3";
 
 package ccl.common.v1;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/common/v1";
-option java_package = "org.ccl.resources";
-option java_outer_classname = "MetadataProto";
-option java_multiple_files = true;
 
 // 基础元信息（适用于大多数业务实体）
 message Metadata {

@@ -18,17 +18,20 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+.idea
+
 # Go workspace file
 go.work
 go.work.sum
 
 # env file
 .env
+.artifacts
+**.pb.go
+**.pb.*.go
+**.connect.go
+
 *.lic
-.idea
-*.pb.go
-*.go
-go.mod
-go.sum
+
 
 *.sql
