@@ -30,7 +30,7 @@ message CreateCategoryRequest {
 }
 
 message CreateCategoryResponse {
-    repeated Category categories = 1;
+    Category category = 1;
 }
 
 
