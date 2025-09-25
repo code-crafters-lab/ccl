@@ -15,7 +15,7 @@ include tools/help.mk
 core_api:
 	buf generate
 	mkdir -p pkg/grpc
-	cp -r .artifacts/grpc/github.com/code-crafters-lab/ccl/pkg/grpc/** pkg/grpc/
+	cp -r .artifacts/grpc/** pkg/grpc/
 #	mkdir -p openapi/v2/zitadel
 #	cp -r .artifacts/grpc/zitadel/ openapi/v2/zitadel
 

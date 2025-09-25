@@ -1,15 +1,24 @@
 version: v2
+clean: true
 managed:
   enabled: true
 plugins:
   - remote: buf.build/protocolbuffers/go:v1.36.9
     out: .artifacts/grpc
-  - remote: buf.build/grpc/go:v1.5.1
-    out: .artifacts/grpc
-  - remote: buf.build/grpc-ecosystem/gateway:v2.27.2
-    out: .artifacts/grpc
+    opt:
+      - paths=source_relative
   - remote: buf.build/connectrpc/go:v1.18.1
     out: .artifacts/grpc
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc/go:v1.5.1
+    out: .artifacts/grpc
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc-ecosystem/gateway:v2.27.2
+    out: .artifacts/grpc
+    opt:
+      - paths=source_relative
 #  - remote: buf.build/bufbuild/es:v2.9.0
 #    out: es
 #    include_imports: true

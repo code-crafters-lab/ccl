@@ -12,7 +12,10 @@ message Category {
     // 父级分类 ID
     uint64 pid = 2;
     // 分类名称
-    string name = 3 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 32];
+    string name = 3 [
+        (buf.validate.field).string.min_len = 1,
+        (buf.validate.field).string.max_len = 32
+    ];
     // 分类排序
     uint32 sort = 4;
     // 分类描述
