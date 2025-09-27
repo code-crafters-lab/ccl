@@ -1,0 +1,42 @@
+edition = "2023";
+
+package ccl.extensions;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/code-crafters-lab/ccl/internal/gen/extension";
+
+// 定义一个消息，用于存放我们的自定义选项数据
+message EnumMetadata {
+    reserved code;
+    reserved 1;
+    
+    string name = 2;
+    string description = 3;
+    string replace_with = 4;
+}
+
+// 将这个消息类型作为扩展，注册到 EnumOptions 中
+// 1001 是我们为这个扩展选择的唯一编号（必须在 1000 到 max 之间）
+extend google.protobuf.EnumOptions {
+    EnumMetadata dict = 1001;
+}
+
+extend google.protobuf.EnumValueOptions {
+    // 枚举项配置
+    EnumMetadata item = 1001;
+}
+
+//extend google.protobuf.MethodOptions {
+//    // 权限控制
+////    authority.AuthorityMetadata authority = 1001;
+//}
+
+
+
+
+
+
+
+
+

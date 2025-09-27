@@ -1,0 +1,32 @@
+edition = "2023";
+
+package ccl.authority;
+
+import "resources/resource.proto";
+
+option go_package = "github.com/code-crafters-lab/idl/auth";
+
+// 权限元数据：定义单个权限（对应二进制中的一位）
+message AuthorityMetadata {
+    // 资源类型
+    resources.ResourceType resource_type = 11;
+    // 权限唯一标识（如"read"、"write"，同一类型中需唯一）
+    string code = 1;
+    // 权限描述（如"读取资源"）
+    string description = 2;
+    // 对应二进制位的索引（从 0 开始，如 0 → 第0位 → 2^0=1）
+    uint64 bit_mask = 3;
+    // 对应十进制值（2^bit_index，如bit_index=0→1，bit_index=1→2）
+    string decimal_value = 4;
+    // 对应十六进制值（2^bit_index，如bit_index=0→1，bit_index=1→2）
+    string hex_value = 5;
+}
+
+
+
+
+
+
+
+
+

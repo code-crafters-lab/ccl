@@ -7,17 +7,14 @@ VERSION ?= development-$(now)
 COMMIT_SHA ?= $(shell git rev-parse HEAD)
 
 # Include versions of tools we build on-demand
-include tools/env.mk
+#include tools/env.mk
 # This provides the "help" target.
-include tools/help.mk
+#include tools/help.mk
 
-.PHONY: core_api
-core_api:
-	buf generate
-	mkdir -p pkg/grpc
-	cp -r .artifacts/grpc/** pkg/grpc/
-#	mkdir -p openapi/v2/zitadel
-#	cp -r .artifacts/grpc/zitadel/ openapi/v2/zitadel
+.PHONY: init
+init:
+	@echo "[*] 正在编译项目..."
+	@buf generate
 
 .PHONY: core_grpc_dependencies
 core_grpc_dependencies:

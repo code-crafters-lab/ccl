@@ -4,7 +4,7 @@ package ccl.category.v1;
 
 import "buf/validate/validate.proto";
 
-option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/category/v1";
+option go_package = "github.com/code-crafters-lab/ccl/internal/gen/category/v1";
 
 message Category {
     // 分类 ID

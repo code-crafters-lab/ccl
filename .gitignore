@@ -30,8 +30,8 @@ go.work.sum
 **.pb.go
 **.pb.*.go
 **.connect.go
+#protoc-gen-*
 
 *.lic
-
 
 *.sql

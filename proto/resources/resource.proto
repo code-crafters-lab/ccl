@@ -1,0 +1,43 @@
+edition = "2023";
+
+package ccl.resources;
+
+import "extension/option.proto";
+
+option go_package = "github.com/code-crafters-lab/internal/gen/resources";
+
+// 资源类型
+enum ResourceType {
+    option allow_alias = true;
+    option (extensions.dict) = {name: "资源类型"};
+
+    RESOURCE_TYPE_UNSPECIFIED = 0 [(extensions.item) = {name: "未指定"}];
+    // 菜单资源
+    RESOURCE_TYPE_MENU = 1 [(extensions.item) = {name: "菜单"}];
+    // 操作资源
+    RESOURCE_TYPE_OPERATION = 2 [(extensions.item) = {name: "操作"}];
+    // 数据资源
+    RESOURCE_TYPE_DATA_ACCESS = 3 [(extensions.item) = {name: "数据"}];
+    // 接口资源
+    RESOURCE_TYPE_API = 4 [(extensions.item) = {name: "接口"}];
+    // 外链资源
+    RESOURCE_TYPE_EXTERNAL_LINK = 5 [(extensions.item) = {name: "外链"}];
+    // 页面资源
+    RESOURCE_TYPE_PAGE = 6 [(extensions.item) = {name: "页面"}];
+    //应用资源
+    RESOURCE_TYPE_APP = 7 [(extensions.item) = {name: "应用"}];
+    // 系统资源
+    RESOURCE_TYPE_SYSTEM = 7 [
+        (extensions.item) = {name: "系统", replace_with: "RESOURCE_TYPE_APP"},
+        deprecated = true
+    ];
+}
+
+
+
+
+
+
+
+
+
