@@ -30,7 +30,8 @@ go.work.sum
 **.pb.go
 **.pb.*.go
 **.connect.go
-#protoc-gen-*
+internal/**/*.bak
+internal/protoc/protoc-gen-*/protoc-gen-*
 
 *.lic
 
