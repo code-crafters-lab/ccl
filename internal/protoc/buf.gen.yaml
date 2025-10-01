@@ -1,0 +1,14 @@
+version: v2
+# 请勿轻言使用，输出目录含义其他代码也会被删除
+#clean: true
+managed:
+  enabled: true
+plugins:
+  - remote: buf.build/protocolbuffers/go:v1.36.9
+    out: ../../pkg/extension
+    opt:
+      - module=github.com/code-crafters-lab/ccl/pkg/extension
+inputs:
+  - directory: ../../proto
+    paths:
+      - ../.../proto/extension

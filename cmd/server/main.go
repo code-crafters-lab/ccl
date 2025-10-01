@@ -8,8 +8,8 @@ import (
 
 	"connectrpc.com/connect"
 	"connectrpc.com/validate"
-	categoryv1 "github.com/code-crafters-lab/ccl/internal/gen/category/v1"
-	categoryv1connect "github.com/code-crafters-lab/ccl/internal/gen/category/v1/v1connect"
+	categoryv1 "github.com/code-crafters-lab/ccl/pkg/grpc/category/v1"
+	categoryv1connect "github.com/code-crafters-lab/ccl/pkg/grpc/category/v1/v1connect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )

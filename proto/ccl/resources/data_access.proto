@@ -1,11 +1,11 @@
 edition = "2023";
 
-option go_package = "github.com/code-crafters-lab/idl/resources";
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/resources";
 option java_package = "org.ccl.resources";
 option java_outer_classname = "RouteProto";
 option java_multiple_files = true;
 
-package auth;
+package ccl.resources;
 
 message DataAccess {
     // todo 设计支持行级权限与列级权限

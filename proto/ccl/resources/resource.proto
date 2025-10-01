@@ -1,0 +1,80 @@
+edition = "2023";
+
+package ccl.resources;
+
+import "extension/dict.proto";
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/resources";
+
+// 资源类型
+enum ResourceType {
+    option allow_alias = true;
+    option (ccl.dict) = {name: "资源类型"};
+
+    RESOURCE_TYPE_UNSPECIFIED = 0;
+    // 菜单资源
+    RESOURCE_TYPE_MENU = 1 [(ccl.item) = {name: "菜单"}];
+    // 操作资源
+    RESOURCE_TYPE_OPERATION = 2 [(ccl.item) = {name: "操作"}];
+    // 数据资源
+    RESOURCE_TYPE_DATA_ACCESS = 3 [(ccl.item) = {name: "数据"}];
+    // 接口资源
+    RESOURCE_TYPE_API = 4 [(ccl.item) = {name: "接口"}];
+    // 外链资源
+    RESOURCE_TYPE_EXTERNAL_LINK = 5 [(ccl.item) = {name: "外链"}];
+    // 页面资源
+    RESOURCE_TYPE_PAGE = 6 [(ccl.item) = {name: "页面"}];
+    //应用资源
+    RESOURCE_TYPE_APP = 7 [(ccl.item) = {name: "应用"}];
+    // 系统资源
+    RESOURCE_TYPE_SYSTEM = 7 [
+        (ccl.item) = {name: "系统", replace_with: "RESOURCE_TYPE_APP"},
+        deprecated = true
+    ];
+}
+
+/**
+ * urn:[租户]:[应用]:[资源类型]:[资源唯一ID]:[扩展属性]
+ */
+message ResourceUrn {
+    // 租户 ID
+    string tenant_id = 1;
+    // 应用 ID
+    string app_id = 2;
+    // 资源类型
+    ResourceType resource_type = 3;
+    // 资源唯一 ID
+    string resource_id = 4;
+    // 权限描述
+    string authority = 5;
+    // 扩展属性
+    string ext = 6;
+}
+
+//message ResourceS {
+//    string authority_id = 1;            // 权限 ID
+//    string id = 2;                      // 资源 ID
+//    string pid = 3;                     // 父资源 ID
+//    ResourceType type = 4;              // 资源类型
+//    string name = 5;                    // 资源名称
+//    int32 sort = 6;                     // 资源排序
+//    oneof data {// 资源数据
+//        App app = 11;                   // 应用资源
+//        Menu menu = 12;                 // 菜单资源
+//        Operation operation = 13;       // 操作资源
+//        DataAccess data_access = 14;     // 数据资源
+//        ApiRoute api = 15;        // 接口资源
+//        LinkRoute link = 16;      // 外链资源
+//        PageRoute page = 17;      // 页面资源
+//    }
+//    //    repeated Resource children = 7;    // 子资源集合
+//
+//    reserved 8 to 10, 18 to 20;
+//}
+
+
+
+
+
+
+

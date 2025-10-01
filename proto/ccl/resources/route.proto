@@ -1,0 +1,75 @@
+edition = "2023";
+
+package ccl.resources;
+
+import "ccl/authority/metadata.proto";
+import "ccl/resources/data_access.proto";
+import "ccl/resources/operation.proto";
+import "extension/dict.proto";
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/resources";
+
+
+/**
+ * 路由类型（所有路由的统一分类标识）
+ */
+enum RouteType {
+    option (ccl.dict) = {name: "路由类型"};
+    ROUTE_TYPE_UNSPECIFIED = 0;
+    ROUTE_TYPE_PAGE = 1 [(ccl.item) = {name: "页面"}];
+    ROUTE_TYPE_API = 2 [(ccl.item) = {name: "API"}];
+    ROUTE_TYPE_EXTERNAL_LINK = 3 [(ccl.item) = {name: "外链"}];
+}
+
+/**
+ * API 路由（后端接口的具体定义）
+ */
+message ApiRoute {
+    string id = 1;                                  // 接口唯一标识
+    string name = 2;                                // 接口名称（如“删除用户”）
+    string method = 3;                              // 请求方法（GET/POST/DELETE）
+    string path = 4;                                // 接口路径（仅 path 部分，如“/api/v1/user/{id}”）
+    authority.AuthorityMetadata authority_metadata = 5;  // 权限标识
+    string classify = 6;                            // 接口分类（如“用户管理”）
+    reserved 7 to 10;                               // 预留字段
+}
+
+/**
+ * 页面路由（前端页面的具体定义）
+ */
+message PageRoute {
+    string id = 1;                                  // 路由 ID
+    string path = 2;                                // 路由路径（如“/pages/user/list”）
+    string template = 3;                            // HTML 模板/组件名称（如“UserList.vue”）
+    string config = 4;                              // 页面配置（JSON 字符串）
+    authority.AuthorityMetadata authority_metadata = 5;   // 权限标识
+    repeated Operation operations = 6;          // 页面关联的操作按钮
+    repeated DataAccess data = 7;                // 页面关联的数据权限
+}
+
+/**
+ * 外链路由（外部链接的具体定义）
+ */
+message LinkRoute {
+    string id = 1;                              // 外链 ID
+    string name = 2;                            // 外链名称
+    string url = 3;                             // 外链完整 URL
+    authority.AuthorityMetadata authority_metadata = 4;   // 权限标识
+    string description = 5;                     // 外链描述（可选）
+}
+
+/**
+ * 路由顶层结构（统一封装所有路由类型，通过 one of 实现“多态”）
+ */
+message Route {
+    string id = 1;                  // 路由 ID
+    RouteType type = 2;             // 路由类型（关联 RouteType 枚举）
+                                    // 路由具体数据（仅选一种类型）
+    oneof data {
+        ApiRoute api = 4;           // API 路由
+        PageRoute page = 5;         // 页面路由
+        LinkRoute link = 6;         // 外链路由
+    }
+}
+
+

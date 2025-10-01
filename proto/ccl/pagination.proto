@@ -2,9 +2,9 @@ syntax = "proto3";
 
 import "buf/validate/validate.proto";
 
-package ccl.common.v1;
+package ccl;
 
-option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/common/v1";
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc";
 
 message Pagination {
     // 当前页数

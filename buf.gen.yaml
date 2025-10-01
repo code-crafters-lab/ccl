@@ -1,28 +1,29 @@
 version: v2
-#clean: true
+# 请勿轻言使用，输出目录含义其他代码也会被删除
+clean: true
 managed:
   enabled: true
 plugins:
-  - local: [ "go", "run", "./internal/protoc/protoc-gen-dict/main.go" ]
-    out: internal/gen
-    opt:
-      - paths=source_relative
+#  - local: [ "go", "run", "./internal/protoc/protoc-gen-dict/main.go" ]
+#    out: pkg/grpc
+#    opt:
+#      - paths=source_relative
   - remote: buf.build/protocolbuffers/go:v1.36.9
-    out: internal/gen
+    out: .artifacts/grpc
     opt:
-      - paths=source_relative
+      - module=github.com/code-crafters-lab/ccl/pkg/grpc
   - remote: buf.build/connectrpc/go:v1.19.0
-    out: internal/gen
+    out: .artifacts/grpc
     opt:
-      - paths=source_relative
+      - module=github.com/code-crafters-lab/ccl/pkg/grpc
 #      - package_suffix= # 去掉默认 package suffix
       - simple # 简化模式
   - remote: buf.build/grpc/go:v1.5.1
-    out: internal/gen
+    out: .artifacts/grpc
     opt:
-      - paths=source_relative
+      - module=github.com/code-crafters-lab/ccl/pkg/grpc
 #  - remote: buf.build/grpc-ecosystem/gateway:v2.27.2
-#    out: internal/gen
+#    out: .artifacts/grpc
 #    opt:
 #      - paths=source_relative
 #  - remote: buf.build/bufbuild/es:v2.9.0
@@ -34,3 +35,6 @@ plugins:
 #      - import_extension=js
 inputs:
   - directory: proto
+    exclude_paths:
+      - proto/extension
+      - proto/license

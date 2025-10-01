@@ -12,22 +12,36 @@ COMMIT_SHA ?= $(shell git rev-parse HEAD)
 #include tools/help.mk
 
 .PHONY: init
-init:
-	@echo "[*] 正在编译项目..."
-	@buf generate
+init: core_api
+#	@echo "[*] 正在编译项目..."
+#	@buf generate
+
+.PHONY: extension_generator
+extension_generator:
+	@echo "[*] 正在生成扩展代码..."
+	@make generate -C internal/protoc
 
 .PHONY: core_grpc_dependencies
 core_grpc_dependencies:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.9 						# https://pkg.go.dev/google.golang.org/protobuf/cmd/protoc-gen-go?tab=versions
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1 						# https://pkg.go.dev/google.golang.org/grpc/cmd/protoc-gen-go-grpc?tab=versions
-	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.27.0	# https://pkg.go.dev/github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway?tab=versions
-	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0 		# https://pkg.go.dev/github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2?tab=versions
-	#go install github.com/envoyproxy/protoc-gen-validate@v1.2.1								# https://pkg.go.dev/github.com/envoyproxy/protoc-gen-validate?tab=versions
-	#go install github.com/bufbuild/buf/cmd/buf@v1.45.0										# https://pkg.go.dev/github.com/bufbuild/buf/cmd/buf?tab=versions
-	go install connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.18.1						# https://pkg.go.dev/connectrpc.com/connect/cmd/protoc-gen-connect-go?tab=versions
+	@echo "[*] 正在安装依赖插件..."
+#	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.9 						# https://pkg.go.dev/google.golang.org/protobuf/cmd/protoc-gen-go?tab=versions
+#	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1 						# https://pkg.go.dev/google.golang.org/grpc/cmd/protoc-gen-go-grpc?tab=versions
+#	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.27.0	# https://pkg.go.dev/github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway?tab=versions
+#	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0 		# https://pkg.go.dev/github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2?tab=versions
+#	#go install github.com/envoyproxy/protoc-gen-validate@v1.2.1								# https://pkg.go.dev/github.com/envoyproxy/protoc-gen-validate?tab=versions
+#	#go install github.com/bufbuild/buf/cmd/buf@v1.45.0										# https://pkg.go.dev/github.com/bufbuild/buf/cmd/buf?tab=versions
+#	go install connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.18.1						# https://pkg.go.dev/connectrpc.com/connect/cmd/protoc-gen-connect-go?tab=versions
+
+.PHONY: core_api
+core_api: extension_generator core_grpc_dependencies
+	@echo "[*] 正在生成核心代码..."
+	@buf generate
+	@mkdir -p pkg/grpc
+	@cp -r .artifacts/grpc pkg
+	@rm -rf .artifacts/grpc
 
 lint:
-	@buf lint
+	@buf lint proto
 
 protoc:
 	@protoc -I resources \

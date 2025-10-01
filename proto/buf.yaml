@@ -5,18 +5,20 @@ deps:
   - buf.build/bufbuild/protovalidate # 依赖 buf-validate 模块
   - buf.build/googleapis/googleapis # 依赖 googleapis 模块
   - buf.build/grpc-ecosystem/grpc-gateway
-#modules:
-#  - path: proto/category
-#    name: buf.build/ccl/category
-#  - path: proto/common
-#    name: buf.build/ccl/common
-
 breaking:
   use:
     - FILE
+    - FIELD_NO_DELETE_UNLESS_NAME_RESERVED
+    - FIELD_NO_DELETE_UNLESS_NUMBER_RESERVED
+    - ENUM_VALUE_NO_DELETE_UNLESS_NAME_RESERVED
+    - ENUM_VALUE_NO_DELETE_UNLESS_NUMBER_RESERVED
+  except:
+    - FIELD_NO_DELETE
+    - ENUM_VALUE_NO_DELETE
+  ignore_unstable_packages: true
 lint:
   use:
     - MINIMAL
   ignore:
-    - dict/dict.proto
-    - oss
+    - extension/authority.proto
+    - extension/dict.proto

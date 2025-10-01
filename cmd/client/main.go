@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	categoryv1 "github.com/code-crafters-lab/ccl/internal/gen/category/v1"
-	categoryv1connect "github.com/code-crafters-lab/ccl/internal/gen/category/v1/v1connect"
+	categoryv1 "github.com/code-crafters-lab/ccl/pkg/grpc/category/v1"
+	categoryv1connect "github.com/code-crafters-lab/ccl/pkg/grpc/category/v1/v1connect"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

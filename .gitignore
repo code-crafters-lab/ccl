@@ -29,6 +29,7 @@ go.work.sum
 .artifacts
 **.pb.go
 **.pb.*.go
+!pkg/extension/*.pb.go
 **.connect.go
 internal/**/*.bak
 internal/protoc/protoc-gen-*/protoc-gen-*

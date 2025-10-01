@@ -1,18 +1,20 @@
 edition = "2023";
 
-option go_package = "github.com/code-crafters-lab/idl/resources";
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/resources";
 option java_package = "org.ccl.resources";
 option java_outer_classname = "RouteProto";
 option java_multiple_files = true;
 
-package auth;
+package ccl.resources;
 
-import "auth/authority.proto";
+import "ccl/authority/metadata.proto";
+import "extension/dict.proto";
+
 
 message InnerOperation {
     string id = 1;                                  // 操作 ID
     string name = 2;                                // 操作按钮名称
-    auth.AuthorityMetadata authority_metadata = 3;  // 权限元数据
+    ccl.authority.AuthorityMetadata authority_metadata = 3;  // 权限元数据
     string icon = 4;                                // 操作按钮图标
     string description = 8;                         // 操作按钮描述
 }
@@ -23,18 +25,20 @@ message InnerOperation {
 message Operation {
     string id = 1;                                  // 操作 ID
     string name = 2;                                // 操作按钮名称
-    auth.AuthorityMetadata authority_metadata = 3;  // 权限元数据
+    ccl.authority.AuthorityMetadata authority_metadata = 3;  // 权限元数据
     string icon = 4;                                // 操作按钮图标
     repeated Location location = 5;                 // 操作按钮位置
-//    resources.route.ApiRoute api = 6;                         // 操作按钮关联的接口资源
+//    ApiRoute api = 6;                         // 操作按钮关联的接口资源
     int32 sort = 7;                                 // 操作按钮排序
     string description = 8;                         // 操作按钮描述
     InnerOperation ref = 9;                         // 内部操作按钮引用
 
     enum Location {
-        UNKNOWN = 0;                            // 未知位置
-        TOOL_BAR = 1;                           // 工具栏
-        ACTION_BAR = 2;                         // 操作栏
+        option (ccl.dict) = {name: "操作按钮位置"};
+
+        LOCATION_UNSPECIFIED = 0;
+        TOOL_BAR = 1 [(ccl.item) = {name: "工具栏"}];
+        ACTION_BAR = 2 [(ccl.item) = {name: "操作栏"}];
     }
 }
 
