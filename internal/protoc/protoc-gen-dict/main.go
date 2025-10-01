@@ -10,7 +10,7 @@ import (
 	"unicode"
 
 	"connectrpc.com/connect"
-	"github.com/code-crafters-lab/ccl/internal/gen/extension"
+	"github.com/code-crafters-lab/ccl/pkg/extension"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -22,9 +22,9 @@ const (
 	name       = "dict"
 	pluginName = "protoc-gen-" + name
 	version    = "0.1.0"
-	noteSymbol = "// "
+	noteSymbol = "-- "
 
-	generatedFilenameExtension = ".dict.go.txt"
+	generatedFilenameExtension = ".dict.sql"
 	usage                      = "See https://connectrpc.com/docs/go/getting-started to learn how to use this plugin.\n\nFlags:\n  -h, --help\tPrint this help and exit.\n      --version\tPrint the version and exit."
 )
 
@@ -72,31 +72,51 @@ func main() {
 }
 
 func generate(plugin *protogen.Plugin, file *protogen.File) {
-	if len(file.Enums) == 0 {
+	// 1. 顶层枚举
+	enums := make([]*protogen.Enum, len(file.Enums))
+	for i, e := range file.Enums {
+		enums[i] = e
+	}
+
+	// 2. 递归查找所有消息,获取嵌套枚举
+	for _, msg := range file.Messages {
+		collectEnums(msg, &enums)
+	}
+
+	if len(enums) == 0 {
 		return
 	}
 
 	filename := file.GeneratedFilenamePrefix + generatedFilenameExtension
 	g := plugin.NewGeneratedFile(filename, file.GoImportPath)
-
 	generatePreamble(g, file, protocVersion(plugin))
 
 	dictionaries := make([]*dict, 0)
-	for _, enum := range file.Enums {
+	for _, enum := range enums {
 		dictionaries = append(dictionaries, ofDict(enum.Desc))
 	}
 
-	//_, _ = fmt.Fprintln(os.Stdout, dictionaries)d
 	buf := bytes.Buffer{}
 
 	for i, d := range dictionaries {
+		buf.WriteString(noteSymbol)
 		buf.WriteString(fmt.Sprintf("dictionaries[%d] = %d,%s,%s,%s\n", i, d.ID, d.Code, d.FullCode, d.Name))
 		for _, item := range d.Items {
+			buf.WriteString(noteSymbol)
 			buf.WriteString(fmt.Sprintf("%d,%s,%d,%s,%d,%s\n", item.ID, item.Code, item.Value, item.Name, item.Sort, item.Description))
 		}
 	}
 
 	_, _ = g.Write(buf.Bytes())
+}
+
+func collectEnums(msg *protogen.Message, enums *[]*protogen.Enum) {
+	for _, e := range msg.Enums {
+		*enums = append(*enums, e)
+	}
+	for _, m := range msg.Messages {
+		collectEnums(m, enums)
+	}
 }
 
 func protocVersion(plugin *protogen.Plugin) string {
@@ -156,7 +176,7 @@ func ofDict(enumDesc protoreflect.EnumDescriptor) *dict {
 	ignoreZero := true
 	if proto.HasExtension(enumOptions, extension.E_Dict) {
 		ext := proto.GetExtension(enumOptions, extension.E_Dict)
-		metadata := ext.(*extension.EnumMetadata)
+		metadata := ext.(*extension.DictExtensionMetadata)
 		if metadata.Name != nil {
 			d.Name = *metadata.Name
 		}
@@ -189,25 +209,27 @@ func ofDictItems(enumDesc protoreflect.EnumDescriptor, ignoreZero bool) []*dictI
 
 		enumValueOptions := enumValueDesc.Options()
 		options := enumValueOptions.(*descriptorpb.EnumValueOptions)
-		deprecated := options.Deprecated != nil && *options.Deprecated
-		if deprecated {
-			item.Description = "已废弃"
-		}
-		if proto.HasExtension(enumValueOptions, extension.E_Item) {
-			valExt := proto.GetExtension(enumValueOptions, extension.E_Item)
-			itemMetadata := valExt.(*extension.EnumMetadata)
-			if deprecated && itemMetadata.ReplaceWith != nil {
-				item.Description += " (请使用 " + replaceEnumPrefix(*itemMetadata.ReplaceWith, enumDesc.Name()) + " 代替)"
+		if options != nil {
+			deprecated := options.Deprecated != nil && *options.Deprecated
+			if deprecated {
+				item.Description = "已废弃"
 			}
-			if itemMetadata.Name != nil {
-				item.Name = *itemMetadata.Name
-			}
-			if itemMetadata.Description != nil {
-				description := item.Description
-				if description != "" {
-					item.Description += ";" + *itemMetadata.Description
-				} else {
-					item.Description = *itemMetadata.Description
+			if proto.HasExtension(enumValueOptions, extension.E_Item) {
+				valExt := proto.GetExtension(enumValueOptions, extension.E_Item)
+				itemMetadata := valExt.(*extension.DictExtensionMetadata)
+				if deprecated && itemMetadata.ReplaceWith != nil {
+					item.Description += " (请使用 " + replaceEnumPrefix(*itemMetadata.ReplaceWith, enumDesc.Name()) + " 代替)"
+				}
+				if itemMetadata.Name != nil {
+					item.Name = *itemMetadata.Name
+				}
+				if itemMetadata.Description != nil {
+					description := item.Description
+					if description != "" {
+						item.Description += ";" + *itemMetadata.Description
+					} else {
+						item.Description = *itemMetadata.Description
+					}
 				}
 			}
 		}

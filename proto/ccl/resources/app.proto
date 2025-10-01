@@ -6,7 +6,17 @@ package ccl.resources;
 
 import "ccl/resources/menu.proto";
 import "ccl/resources/route.proto";
+import "extension/dict.proto";
 import "google/protobuf/any.proto";
+
+enum AppState {
+    option (ccl.dict) = {name: "应用状态"};
+
+    APP_STATE_UNSPECIFIED = 0;
+    APP_STATE_ACTIVE = 1 [(ccl.item) = {name: "启用"}];
+    APP_STATE_INACTIVE = 2 [(ccl.item) = {name: "停用"}];
+    APP_STATE_REMOVED = 3 [(ccl.item) = {name: "删除",description: "逻辑删除"}];
+}
 
 /**
  * 应用资源
