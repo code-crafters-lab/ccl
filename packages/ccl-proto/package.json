@@ -1,0 +1,27 @@
+{
+  "name": "@cc-labs/proto",
+  "version": "0.1.0",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "generate": "buf generate"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./ccl/*": {
+      "types": "./dist/types/ccl/*.d.ts",
+      "import": "./dist/es/ccl/*.js",
+      "require": "./dist/cjs/ccl/*.js"
+    }
+  },
+  "typesVersions": {
+
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.9.0"
+  }
+}

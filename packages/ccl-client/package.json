@@ -1,0 +1,59 @@
+{
+  "name": "@cc-labs/client",
+  "version": "0.1.0",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./node": {
+      "types": {
+        "import": "./dist/node.d.ts",
+        "require": "./dist/node.d.cts",
+        "default": "./dist/node.d.ts"
+      },
+      "import": "./dist/node.js",
+      "require": "./dist/node.cjs"
+    },
+    "./web": {
+      "types": {
+        "import": "./dist/web.d.ts",
+        "require": "./dist/web.d.cts",
+        "default": "./dist/web.d.ts"
+      },
+      "import": "./dist/web.js",
+      "require": "./dist/web.cjs"
+    }
+  },
+  "typesVersions": {},
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.9.0",
+    "@cc-labs/proto": "workspace:*",
+    "@connectrpc/connect": "^2.1.0",
+    "@connectrpc/connect-node": "^2.1.0",
+    "@connectrpc/connect-web": "^2.1.0",
+    "jose": "^6.1.0"
+  },
+  "devDependencies": {
+    "@eslint/css": "^0.11.1",
+    "@eslint/js": "^9.36.0",
+    "@eslint/json": "^0.13.2",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.4.0",
+    "jiti": "^2.6.1",
+    "tsup": "^8.5.0",
+    "typescript-eslint": "^8.45.0"
+  }
+}

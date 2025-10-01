@@ -1,0 +1,7 @@
+node_modules
+.DS_Store
+.turbo
+*.log
+buf.gen.yaml
+Makefile
+turbo.json

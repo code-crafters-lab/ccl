@@ -1,0 +1,7 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+overrides:
+  "@cc-labs/proto": "workspace:*"
+  "@cc-labs/client": "workspace:*"

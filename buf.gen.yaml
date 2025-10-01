@@ -26,13 +26,6 @@ plugins:
 #    out: .artifacts/grpc
 #    opt:
 #      - paths=source_relative
-#  - remote: buf.build/bufbuild/es:v2.9.0
-#    out: es
-#    include_imports: true
-#    opt:
-#      - target=ts
-#      - json_types=true
-#      - import_extension=js
 inputs:
   - directory: proto
     exclude_paths:

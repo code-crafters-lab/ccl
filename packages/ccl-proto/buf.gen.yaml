@@ -1,0 +1,32 @@
+version: v2
+clean: true
+managed:
+  enabled: true
+plugins:
+  - remote: buf.build/bufbuild/es:v2.9.0
+    out: dist/es
+    include_imports: true
+    opt:
+      - target=js
+      - json_types=true
+      - import_extension=js
+  - remote: buf.build/bufbuild/es:v2.9.0
+    out: dist/cjs
+    include_imports: true
+    opt:
+      - target=js
+      - json_types=true
+      - import_extension=js
+      - js_import_style=legacy_commonjs
+  - remote: buf.build/bufbuild/es:v2.2.0
+    out: dist/types
+    include_imports: true
+    opt:
+      - target=dts
+      - json_types=true
+      - import_extension=js
+inputs:
+  - directory: ../../proto
+    exclude_paths:
+      - ../../proto/extension
+      - ../../proto/license
