@@ -1,0 +1,75 @@
+---
+import { createConnectTransport, createGrpcTransport } from "@connectrpc/connect-node";
+import { CategoryService } from "@cc-labs/proto/category/v1/category_service_pb";
+import { Category } from "@cc-labs/proto/category/v1/category_pb";
+import { createClient } from "@connectrpc/connect";
+import AlertButton from "./AlertButton.astro";
+import AstroGreet from "./AstroGreet.astro";
+
+const transport = createGrpcTransport({
+  baseUrl: "http://localhost:8090",
+});
+
+const categoryClient = createClient(CategoryService, transport);
+const res = await categoryClient.listCategory({ pagination: { number: 1, size: 20 } });
+
+interface Props {
+  total: number;
+  data: Category[];
+}
+const { total = res.total, data = res.categories } = Astro.props;
+---
+
+<div>
+  {total}
+  <div>
+    {
+      data.map((item) => {
+        return (
+          <>
+            <div>{item.$typeName}</div>
+            <div>{item.id}</div>
+            <div>{item.name}</div>
+          </>
+        );
+      })
+    }
+  </div>
+  <AlertButton />
+  <AlertButton />
+  <AlertButton />
+  <!-- 将按钮包装在我们的自定义元素“astro-heart”中。 -->
+  <astro-heart>
+    <button aria-label="Heart">💜1</button> × <span>0</span>
+  </astro-heart>
+  <astro-heart>
+    <button aria-label="Heart">💜2</button> × <span>0</span>
+  </astro-heart>
+  <!-- 使用默认消息：“你好，世界！” -->
+  <AstroGreet />
+
+  <!-- 使用作为 props 传递的自定义消息。 -->
+  <AstroGreet message="构建组件的美好一天！" />
+  <AstroGreet message="很高兴你做到了！👋" />
+</div>
+<script src="./test.ts"></script>
+<script>
+  // 为我们的新 HTML 自定义元素定义行为。
+  class AstroHeart extends HTMLElement {
+    connectedCallback() {
+      let count = 0;
+
+      const heartButton = this.querySelector("button");
+      const countSpan = this.querySelector("span");
+
+      // 每次单击按钮时，更新计数。
+      heartButton.addEventListener("click", () => {
+        count++;
+        countSpan.textContent = count.toString();
+      });
+    }
+  }
+
+  // 告诉浏览器将我们的 AstroHeart 类用于 <astro-heart> 元素。
+  customElements.define("astro-heart", AstroHeart);
+</script>

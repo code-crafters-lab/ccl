@@ -15,18 +15,19 @@ import (
 )
 
 func main() {
-	callGrpc()
+	//callGrpc()
+	connectRpc()
 }
 
 func connectRpc() {
 	client := categoryv1connect.NewCategoryServiceClient(
 		http.DefaultClient,
-		"http://localhost:8080/api/v1",
+		"http://localhost:8090/api/v1",
 		connect.WithGRPC(),
 	)
-	res, err := client.CreateCategory(
+	res, err := client.ListCategory(
 		context.Background(),
-		&categoryv1.CreateCategoryRequest{Name: "Jane"},
+		&categoryv1.ListCategoryRequest{},
 	)
 	if err != nil {
 		log.Println(err)
@@ -38,7 +39,7 @@ func connectRpc() {
 func callGrpc() {
 	// --- 1. 创建 gRPC 连接 ---
 	// 目标服务器地址
-	const address = "localhost:8080"
+	const address = "localhost:8090"
 
 	// 创建连接选项。对于开发环境，可以使用不安全的连接。
 	// 在生产环境中，应使用 WithTransportCredentials 配置 TLS。
@@ -73,7 +74,7 @@ func callUnaryRPC(client categoryv1.CategoryServiceClient) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	response, err := client.CreateCategory(ctx, &categoryv1.CreateCategoryRequest{Name: "Alice"})
+	response, err := client.ListCategory(ctx, &categoryv1.ListCategoryRequest{})
 	if err != nil {
 		log.Printf("Unary RPC 调用失败: %v", err)
 		return

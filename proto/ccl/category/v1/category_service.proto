@@ -4,6 +4,7 @@ package ccl.category.v1;
 
 import "buf/validate/validate.proto";
 import "ccl/category/v1/category.proto";
+import "ccl/pagination.proto";
 import "google/api/annotations.proto";
 
 option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/category/v1";
@@ -12,11 +13,26 @@ service CategoryService {
 
     rpc CreateCategory (CreateCategoryRequest) returns (CreateCategoryResponse) {
         option (google.api.http) = {
-            get: "/v1/category"
+            post: "/v1/category"
             body: "*"
         };
     }
 
+    rpc ListCategory (ListCategoryRequest) returns (ListCategoryResponse) {
+        option (google.api.http) = {
+            get: "/v1/category"
+        };
+    }
+
+}
+
+message ListCategoryRequest {
+    Pagination pagination = 1;
+}
+
+message ListCategoryResponse {
+    repeated Category categories = 1;
+    int32 total = 2;
 }
 
 message CreateCategoryRequest {

@@ -1,4 +1,4 @@
-import { createGrpcWebTransport, type GrpcWebTransportOptions } from "@connectrpc/connect-web";
+import { createGrpcWebTransport, type GrpcWebTransportOptions, createConnectTransport } from "@connectrpc/connect-web";
 import { NewAuthorizationBearerInterceptor } from "./interceptors.js";
 
 /**

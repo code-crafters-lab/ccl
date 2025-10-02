@@ -12,14 +12,62 @@
     "dist"
   ],
   "exports": {
-    "./ccl/*": {
+    "./buf/*": {
+      "types": "./dist/types/buf/*.d.ts",
+      "import": "./dist/esm/buf/*.js",
+      "require": "./dist/cjs/buf/*.js"
+    },
+    "./buf/*.js": {
+      "types": "./dist/types/buf/*.d.ts",
+      "import": "./dist/esm/buf/*.js",
+      "require": "./dist/cjs/buf/*.js"
+    },
+    "./extension/*": {
+      "types": "./dist/types/extension/*.d.ts",
+      "import": "./dist/esm/extension/*.js",
+      "require": "./dist/cjs/extension/*.js"
+    },
+    "./extension/*.js": {
+      "types": "./dist/types/extension/*.d.ts",
+      "import": "./dist/esm/extension/*.js",
+      "require": "./dist/cjs/extension/*.js"
+    },
+    "./google/*": {
+      "types": "./dist/types/google/*.d.ts",
+      "import": "./dist/esm/google/*.js",
+      "require": "./dist/cjs/google/*.js"
+    },
+    "./google/*.js": {
+      "types": "./dist/types/google/*.d.ts",
+      "import": "./dist/esm/google/*.js",
+      "require": "./dist/cjs/google/*.js"
+    },
+    "./*": {
       "types": "./dist/types/ccl/*.d.ts",
-      "import": "./dist/es/ccl/*.js",
+      "import": "./dist/esm/ccl/*.js",
+      "require": "./dist/cjs/ccl/*.js"
+    },
+    "./*.js": {
+      "types": "./dist/types/ccl/*.d.ts",
+      "import": "./dist/esm/ccl/*.js",
       "require": "./dist/cjs/ccl/*.js"
     }
   },
   "typesVersions": {
-
+    "*": {
+      "buf/*": [
+        "./dist/types/ccl/*"
+      ],
+      "extension/*": [
+        "./dist/types/ccl/*"
+      ],
+      "google/*": [
+        "./dist/types/ccl/*"
+      ],
+      "/*": [
+        "./dist/types/ccl/*"
+      ]
+    }
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.9.0"

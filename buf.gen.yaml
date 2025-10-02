@@ -25,7 +25,7 @@ plugins:
 #  - remote: buf.build/grpc-ecosystem/gateway:v2.27.2
 #    out: .artifacts/grpc
 #    opt:
-#      - paths=source_relative
+#      - module=github.com/code-crafters-lab/ccl/pkg/grpc
 inputs:
   - directory: proto
     exclude_paths:

@@ -1,8 +1,8 @@
-syntax = "proto3";
-
-import "buf/validate/validate.proto";
+edition = "2023";
 
 package ccl;
+
+import "buf/validate/validate.proto";
 
 option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc";
 

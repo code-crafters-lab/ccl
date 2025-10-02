@@ -1,0 +1,13 @@
+<button class="alert">Click me!</button>
+
+<script>
+  // 在页面上找到所有带有 `alert` 类的按钮。
+  const buttons = document.querySelectorAll("button.alert");
+
+  // 处理每个按钮上的点击事件。
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      alert("按钮被点击了！");
+    });
+  });
+</script>

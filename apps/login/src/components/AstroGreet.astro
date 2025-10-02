@@ -1,0 +1,23 @@
+---
+const { message = "你好，世界！" } = Astro.props;
+---
+
+<!-- 将消息存储为数据属性。 -->
+<astro-greet data-message={message}>
+  <button>Say hi!</button>
+</astro-greet>
+
+<script>
+  class AstroGreet extends HTMLElement {
+    connectedCallback() {
+      // 从 data（数据）属性中读取消息。
+      const message = this.dataset.message;
+      const button = this.querySelector("button");
+      button.addEventListener("click", () => {
+        alert(message);
+      });
+    }
+  }
+
+  customElements.define("astro-greet", AstroGreet);
+</script>

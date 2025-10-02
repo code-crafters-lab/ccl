@@ -1,0 +1,20 @@
+{
+  "name": "login",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@cc-labs/proto": "workspace:*",
+    "astro": "^5.14.1"
+  },
+  "devDependencies": {
+    "@connectrpc/connect": "^2.1.0",
+    "@connectrpc/connect-node": "^2.1.0",
+    "@connectrpc/connect-web": "^2.1.0"
+  }
+}

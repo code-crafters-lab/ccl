@@ -4,7 +4,7 @@ managed:
   enabled: true
 plugins:
   - remote: buf.build/bufbuild/es:v2.9.0
-    out: dist/es
+    out: dist/esm
     include_imports: true
     opt:
       - target=js
