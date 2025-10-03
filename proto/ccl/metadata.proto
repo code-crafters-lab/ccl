@@ -26,7 +26,18 @@ message Metadata {
     map<string, string> labels = 8;
 }
 
-
+//enum OwnerType {
+//    OWNER_TYPE_UNSPECIFIED = 0;
+//    OWNER_TYPE_SYSTEM = 1;
+//    OWNER_TYPE_APP = 2;
+//    OWNER_TYPE_INSTANCE = 3;
+//    OWNER_TYPE_ORG = 4;
+//}
+//
+//message Owner {
+//    OwnerType type = 1;
+//    string id = 2;
+//}
 
 
 

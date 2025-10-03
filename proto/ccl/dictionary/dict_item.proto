@@ -1,0 +1,44 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/resources";
+
+package ccl.dictionary;
+
+import "buf/validate/validate.proto";
+import "ccl/metadata.proto";
+
+message DictItem {
+    // 字典项 ID
+    string id = 1;
+    // 字典 id
+    string dict_id = 2;
+    // 字典项编码
+    string code = 3 [
+        (buf.validate.field).string.min_len = 1,
+        (buf.validate.field).string.max_len = 64
+    ];
+    // 字典项值
+    string value = 5;
+    // 字典项名称
+    string name = 4 [
+        (buf.validate.field).string.min_len = 2,
+        (buf.validate.field).string.max_len = 64
+    ];
+    // 字典项排序
+    int32 sort = 6;
+    // 字典项描述/备注
+    string description = 7;
+    // 字典配置
+    bytes configuration = 9;
+    // 字典元数据
+    Metadata metadata = 10;
+}
+
+
+
+
+
+
+
+
+

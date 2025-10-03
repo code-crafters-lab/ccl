@@ -1,0 +1,64 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/resources";
+
+package ccl.dictionary;
+
+import "buf/validate/validate.proto";
+import "ccl/metadata.proto";
+import "extension/dict.proto";
+
+enum Status {
+    option (ccl.dict) = {name: "应用状态"};
+
+    STATUS_UNSPECIFIED = 0;
+    STATUS_ACTIVE = 1 [(ccl.item) = {name: "启用"}];
+    STATUS_INACTIVE = 2 [(ccl.item) = {name: "停用"}];
+}
+
+enum ValueType {
+    option (ccl.dict) = {name: "字典值类型"};
+
+    VALUE_TYPE_UNSPECIFIED = 0;
+    VALUE_TYPE_STRING = 1 [(ccl.item) = {name: "字符串"}];
+    VALUE_TYPE_NUMBER = 2 [(ccl.item) = {name: "数值"}];
+    VALUE_TYPE_BOOL = 3 [(ccl.item) = {name: "布尔值"}];
+}
+
+message Dict {
+    // 字典 ID
+    string id = 1;
+    // 字典编码
+    string code = 2 [
+        (buf.validate.field).string.min_len = 1,
+        (buf.validate.field).string.max_len = 64
+    ];
+    // 字典名称
+    string name = 3 [
+        (buf.validate.field).string.min_len = 2,
+        (buf.validate.field).string.max_len = 64
+    ];
+    // 字典值类型
+    ValueType value_type = 4;
+    // 字典排序
+    int32 sort = 5;
+    // 字典状态
+    Status status = 6;
+    // 字典描述/备注
+    string description = 7;
+    // 是否内置字典
+    bool inner = 8;
+    // 字典配置
+    bytes configuration = 9;
+    // 字典元数据
+    Metadata metadata = 10;
+}
+
+
+
+
+
+
+
+
+
