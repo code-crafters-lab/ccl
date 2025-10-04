@@ -17,30 +17,30 @@ type Authority struct {
 func (Authority) Fields() []ent.Field {
 	return []ent.Field{
 		field.Enum("resource_type").Comment("资源类型").Values("1", "2"),
-		field.String("resource_id").Comment("资源ID").MaxLen(64).Optional(),
+		field.String("resource_id").Comment("资源ID").MaxLen(64).NotEmpty(),
 		field.String("parent_resource_id").Comment("父资源ID").MaxLen(64).Optional(),
-		field.String("name").Comment("资源名称").MaxLen(32),
+		field.String("name").Comment("资源名称").NotEmpty().MaxLen(32),
 		field.Int("sort").Comment("资源排序").Default(1),
-		field.String("remark").Comment("资源备注").MaxLen(128).Optional(),
+		field.String("description").Comment("权限描述").MaxLen(128).Optional(),
+		FieldCreatedAt,
+		FieldUpdatedAt,
+	}
+}
 
-		// todo 补充创建信息
-
-		//DELETE_FLAG   tinyint(1)  default 0  not null comment '数据状态：1_已删除；0_未删除'
+// Edges of the Authority.
+func (Authority) Edges() []ent.Edge {
+	return []ent.Edge{
+		// M:N 关联：权限 → 角色（反向关联 Role 的 permissions 边）
+		//edge.From("roles", Role.Type).Ref("permissions").Through("role_permissions", RolePermission.Type),
 	}
 }
 
 // Indexes of the Authority.
 func (Authority) Indexes() []ent.Index {
 	return []ent.Index{
-		// unique index.
 		index.Fields("resource_type", "resource_id").Unique(),
 		index.Fields("parent_resource_id"),
 	}
-}
-
-// Edges of the Authority.
-func (Authority) Edges() []ent.Edge {
-	return nil
 }
 
 // Annotations of the Authority.
@@ -48,12 +48,5 @@ func (Authority) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.WithComments(true),
 		schema.Comment("资源权限"),
-	}
-}
-
-// Mixin of the Authority.
-func (Authority) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		//database.BaseMixin{},
 	}
 }

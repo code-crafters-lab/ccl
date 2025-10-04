@@ -34,13 +34,13 @@ node_modules
 **.connect.go
 
 # 忽略 ent 目录下的所有文件和子目录
-internal/database/ent/*
+internal/database/ent/generated
 # 但不要忽略 schema 目录本身
-!internal/database/ent/schema/
-# 不要忽略 schema 目录下的所有 .go 文件
-!internal/database/ent/schema/*.go
-# 不要忽略 generate.go 文件
-!internal/database/ent/generate.go
+#!internal/database/ent/schema/
+## 不要忽略 schema 目录下的所有 .go 文件
+#!internal/database/ent/schema/*.go
+## 不要忽略 generate.go 文件
+#!internal/database/ent/generate.go
 
 internal/**/*.bak
 internal/protoc/protoc-gen-*/protoc-gen-*

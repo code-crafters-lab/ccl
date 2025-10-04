@@ -11,6 +11,9 @@ COMMIT_SHA ?= $(shell git rev-parse HEAD)
 # This provides the "help" target.
 #include tools/help.mk
 
+dd:
+	docker run --rm --net=host \ -v $(pwd)/migrations:/migrations \ arigaio/atlas migrate apply --url "mysql://root:pass@:3306/test"
+
 .PHONY: init
 init: core_api
 #	@echo "[*] 正在编译项目..."
