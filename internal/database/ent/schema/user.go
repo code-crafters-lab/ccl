@@ -19,7 +19,7 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id").Unique().NonNegative(),
 		field.String("username").Comment("用户名").MaxLen(32).Unique().NotEmpty(),
-		field.String("password").Comment("密码").MaxLen(128).Optional().Nillable(),
+		field.String("password").Comment("密码").Sensitive().MaxLen(128).Optional().Nillable(),
 		field.String("email").Comment("邮箱").MaxLen(64).Unique().Optional().Nillable(),
 		field.Bool("email_verified").Comment("邮箱是否已验证").Default(false),
 		// 手机号（可选，用于 MFA 或登录）
