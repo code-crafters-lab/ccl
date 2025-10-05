@@ -1,8 +1,8 @@
 package test
 
 import (
-	ent "ccl/db/ent/generated"
-	_ "ccl/db/ent/generated/runtime"
+	"ccl/db/ent"
+	_ "ccl/db/ent/runtime"
 	"context"
 	"fmt"
 	"log"

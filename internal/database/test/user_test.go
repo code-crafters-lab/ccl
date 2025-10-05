@@ -1,8 +1,8 @@
 package test
 
 import (
-	"ccl/db/ent/generated/role"
-	"ccl/db/ent/generated/user"
+	"ccl/db/ent/role"
+	"ccl/db/ent/user"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
