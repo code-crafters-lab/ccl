@@ -3,6 +3,7 @@ package test
 import (
 	"ccl/db/ent"
 	_ "ccl/db/ent/runtime"
+	"ccl/db/hooks"
 	"context"
 	"fmt"
 	"log"
@@ -24,6 +25,9 @@ func init() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?%s", "root", "root!@@&", "localhost", "3306", "cds_infra",
 		"charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai")
 	client, err = ent.Open(dialect.MySQL, dsn)
+	// 全局 hook
+	//client.Use(hooks.PasswordHook)
+	client.User.Use(hooks.PasswordHook)
 	if err != nil {
 		log.Fatalf("failed opening connection to mysql: %v", err)
 	}

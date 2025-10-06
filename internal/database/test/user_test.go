@@ -10,8 +10,8 @@ import (
 
 func Test_User_Add(t *testing.T) {
 	err = client.User.Create().
-		SetUsername("coffee377").
-		SetEmail("coffee377@dingtalk.com").Exec(ctx)
+		SetUsername("test").SetPassword("123456").
+		SetEmail("test@dingtalk.com").Exec(ctx)
 	assert.Nil(t, err)
 }
 

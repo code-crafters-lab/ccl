@@ -78,8 +78,5 @@ func (User) Annotations() []schema.Annotation {
 
 // Mixin of the User.
 func (User) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		//BaseMixin{},
-		//DeleteMixin{},
-	}
+	return []ent.Mixin{}
 }

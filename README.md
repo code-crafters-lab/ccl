@@ -8,6 +8,11 @@ make -v
 ```
 
 ## 初始化
+```shell
+go work init
+go work use . ./internal/authn ./internal/database
+go work sync
 ```
+```shell
 pnpm add prettier prettier-config-standard prettier-plugin-astro prettier-plugin-sort-imports prettier-plugin-tailwindcss -D
 ```

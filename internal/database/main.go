@@ -2,6 +2,7 @@ package main
 
 import (
 	"ccl/db/ent/extension"
+	"embed"
 	"os"
 	"path/filepath"
 
@@ -10,8 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
-var logger *zap.Logger
-var err error
+var (
+	logger *zap.Logger
+	err    error
+	//go:embed templates/**
+	templateDir embed.FS
+)
 
 func main() {
 	if !clean() {
@@ -21,6 +26,11 @@ func main() {
 	opts := []entc.Option{
 		entc.Extensions(extension.Extension(log)),
 	}
+	// 2. 递归遍历源目录
+	template := gen.MustParse(gen.NewTemplate("ccl").
+		ParseFS(templateDir, "templates/*.tmpl", "templates/*/*.tmpl"))
+	log.Info(template)
+
 	if err := entc.Generate("./ent/schema", &gen.Config{
 		Features: []gen.Feature{
 			//gen.FeaturePrivacy,
@@ -28,6 +38,7 @@ func main() {
 			gen.FeatureGlobalID,
 			gen.FeatureModifier,
 		},
+		Templates: []*gen.Template{template},
 	}, opts...); err != nil {
 		log.Error("running ent codegen:", zap.Error(err))
 	}

@@ -1,0 +1,115 @@
+{{/* 下一行的作用是，告诉 Intellij/GoLand 等IDE，基于 gen.Graph 类型来启用自动补全功能。 */}}
+{{/* gotype: entgo.io/ent/entc/gen.Graph */}}
+
+{{ define "oauth2client_storage" }}
+
+    {{/* Add the base header for the generated file */}}
+    {{ $pkg := base $.Config.Package }}
+    {{ template "header" $ }}
+
+    {{/* Loop over all nodes and implement the "GoStringer" interface */}}
+    {{ range $n := $.Nodes }}
+        {{ if eq $n.Name "OAuth2Client" }}
+            import (
+            "time"
+
+            "github.com/zitadel/oidc/v3/pkg/oidc"
+            "github.com/zitadel/oidc/v3/pkg/op"
+            )
+
+            func (c *OAuth2Client) GetID() string {
+            return c.ID
+            }
+
+            func (c *OAuth2Client) RedirectURIs() []string {
+            return c.RedirectUris
+            }
+
+            func (c *OAuth2Client) PostLogoutRedirectURIs() []string {
+            return c.PostLogoutRedirectUris
+            }
+
+            func (c *OAuth2Client) ApplicationType() op.ApplicationType {
+            switch c.AppType {
+            case "web":
+            return op.ApplicationTypeWeb
+            case "user_agent":
+            return op.ApplicationTypeUserAgent
+            case "native":
+            return op.ApplicationTypeNative
+            default:
+            return op.ApplicationTypeWeb
+            }
+            }
+
+            func (c *OAuth2Client) AuthMethod() oidc.AuthMethod {
+            return oidc.AuthMethodNone
+            }
+
+            func (c *OAuth2Client) ResponseTypes() []oidc.ResponseType {
+            //c.ClientSettings.ResponseTypes.re
+            //TODO implement me
+            return []oidc.ResponseType{
+            oidc.ResponseTypeCode,
+            oidc.ResponseTypeIDToken,
+            oidc.ResponseTypeIDTokenOnly,
+            }
+            }
+
+            func (c *OAuth2Client) GrantTypes() []oidc.GrantType {
+            //TODO implement me
+            return []oidc.GrantType{
+            oidc.GrantTypeCode,
+            oidc.GrantTypeRefreshToken,
+            }
+            }
+
+            func (c *OAuth2Client) LoginURL(id string) string {
+            return "/login" + "?aid=" + id
+            }
+
+            func (c *OAuth2Client) AccessTokenType() op.AccessTokenType {
+            return op.AccessTokenType(0)
+            }
+
+            func (c *OAuth2Client) IDTokenLifetime() time.Duration {
+            if c.TokenSettings != nil && c.TokenSettings.IdTokenTimeToLive != nil {
+            return *c.TokenSettings.IdTokenTimeToLive
+            }
+            return time.Hour * 1
+            }
+
+            func (c *OAuth2Client) DevMode() bool {
+            return c.IsDev
+            }
+
+            func (c *OAuth2Client) RestrictAdditionalIdTokenScopes() func(scopes []string) []string {
+            return func(scopes []string) []string {
+            return scopes
+            }
+            }
+
+            func (c *OAuth2Client) RestrictAdditionalAccessTokenScopes() func(scopes []string) []string {
+            return func(scopes []string) []string {
+            return scopes
+            }
+            }
+
+            func (c *OAuth2Client) IsScopeAllowed(scope string) bool {
+            return false
+            }
+
+            func (c *OAuth2Client) IDTokenUserinfoClaimsAssertion() bool {
+            return false
+            }
+
+            func (c *OAuth2Client) ClockSkew() time.Duration {
+            if c.TimeOffset != nil {
+            return time.Duration(*c.TimeOffset)
+            }
+            return 0
+            }
+        {{ end }}
+    {{ end }}
+
+{{ end }}
