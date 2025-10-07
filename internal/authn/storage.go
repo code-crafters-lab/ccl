@@ -3,37 +3,62 @@ package authn
 import (
 	"ccl/db/ent"
 	"ccl/db/ent/oauth2authorization"
+	"ccl/db/ent/oauth2authorizationcode"
 	"ccl/db/ent/oauth2client"
+	"ccl/db/ent/user"
 	"ccl/db/oauth2"
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"sync"
+	"time"
 
-	oidcstorage "github.com/zitadel/oidc/v3/example/server/storage"
+	pwd "github.com/coffee377/autoctl/pkg/security/password"
+	"github.com/go-jose/go-jose/v4"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 	"github.com/zitadel/oidc/v3/pkg/op"
 )
+
+type storage interface {
+	Authentication
+	op.Storage
+}
 
 type Storage struct {
 	storage
 	lock sync.Mutex
 	db   *ent.Client
-	S    *oidcstorage.Storage
 }
 
-func NewStorage(client *ent.Client) op.Storage {
-	store := oidcstorage.NewUserStore("http://localhost")
+func NewStorage(client *ent.Client) *Storage {
 	return &Storage{
 		lock: sync.Mutex{},
 		db:   client,
-		S:    oidcstorage.NewStorage(store),
 	}
 }
 
 func (s *Storage) Health(ctx context.Context) error {
 	//s.db.Ping(ctx)
 	//TODO implement me
+	return nil
+}
+
+func (s *Storage) LoginByUsernamePassword(ctx context.Context, username, password, authId string) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	user, err := s.db.User.Query().Select(user.FieldUsername, user.FieldPassword).
+		Where(user.UsernameEQ(username), user.StatusEQ("active")).Only(ctx)
+	err = errors.Join(err, user.VerifyPassword(pwd.CreateDelegatingPasswordEncoder(), password))
+	if err != nil {
+		return fmt.Errorf("账号或密码错误")
+	}
+	if authId != "" {
+		aid, e1 := s.getAuthID(authId)
+		_, e2 := s.db.OAuth2Authorization.Update().Where(oauth2authorization.IDEQ(aid)).
+			SetSubject(user.Username).SetFinished(true).SetAuthTime(time.Now()).Save(ctx)
+		return errors.Join(e1, e2)
+	}
 	return nil
 }
 
@@ -66,7 +91,7 @@ func (s *Storage) CreateAuthRequest(ctx context.Context, authReq *oidc.AuthReque
 func (s *Storage) AuthRequestByID(ctx context.Context, authId string) (op.AuthRequest, error) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	aid, err := strconv.Atoi(authId)
+	aid, err := s.getAuthID(authId)
 	if err != nil {
 		return nil, err
 	}
@@ -74,65 +99,92 @@ func (s *Storage) AuthRequestByID(ctx context.Context, authId string) (op.AuthRe
 	return authorization, err
 }
 
+func (s *Storage) getAuthID(authId string) (int, error) {
+	aid, err := strconv.Atoi(authId)
+	if err != nil {
+		return 0, fmt.Errorf("aid 解析错误")
+	}
+	return aid, err
+}
+
 func (s *Storage) AuthRequestByCode(ctx context.Context, code string) (op.AuthRequest, error) {
-	//TODO implement me
-	panic("implement me")
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	ac, err := s.db.OAuth2AuthorizationCode.Query().Where(oauth2authorizationcode.CodeEQ(code)).WithAuthorization().Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return ac.Edges.Authorization, nil
 }
 
 func (s *Storage) SaveAuthCode(ctx context.Context, authId string, code string) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	aid, err := s.getAuthID(authId)
+	if err != nil {
+		return err
+	}
+	codeCreate := s.db.OAuth2AuthorizationCode.Create()
+	codeCreate.SetAuthorizationID(aid).SetCode(code)
+	// todo 获取 code 过期配置
+	//codeCreate.SetExpiresAt(time.Now().Add(time.Hour * 24))
+	err = codeCreate.Exec(ctx)
+	return err
+}
+
+func (s *Storage) DeleteAuthRequest(ctx context.Context, authId string) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	aid, err := s.getAuthID(authId)
+	if err != nil {
+		return err
+	}
+	err = s.db.OAuth2Authorization.DeleteOneID(aid).Exec(ctx)
+	return err
+}
+
+func (s *Storage) CreateAccessToken(ctx context.Context, request op.TokenRequest) (accessTokenID string, expiration time.Time, err error) {
+	//TODO implement me
+	return "1", time.Now().Add(time.Minute * 5), err
+}
+
+func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.TokenRequest, currentRefreshToken string) (accessTokenID string, newRefreshToken string, expiration time.Time, err error) {
+	//TODO implement me
+	return "1", "refresh_token", time.Now().Add(time.Minute * 5), err
+}
+
+func (s *Storage) TokenRequestByRefreshToken(ctx context.Context, refreshToken string) (op.RefreshTokenRequest, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-//func (s *Storage) DeleteAuthRequest(ctx context.Context, authId string) error {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) CreateAccessToken(ctx context.Context, request op.TokenRequest) (accessTokenID string, expiration time.Time, err error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.TokenRequest, currentRefreshToken string) (accessTokenID string, newRefreshToken string, expiration time.Time, err error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) TokenRequestByRefreshToken(ctx context.Context, refreshToken string) (op.RefreshTokenRequest, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) TerminateSession(ctx context.Context, userID string, clientID string) error {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) RevokeToken(ctx context.Context, tokenOrTokenID string, userID string, clientID string) *oidc.Error {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) GetRefreshTokenInfo(ctx context.Context, clientID string, token string) (userID string, tokenID string, err error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) SigningKey(ctx context.Context) (op.SigningKey, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) SignatureAlgorithms(ctx context.Context) ([]jose.SignatureAlgorithm, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) KeySet(ctx context.Context) ([]op.Key, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
+func (s *Storage) TerminateSession(ctx context.Context, userID string, clientID string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Storage) RevokeToken(ctx context.Context, tokenOrTokenID string, userID string, clientID string) *oidc.Error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Storage) GetRefreshTokenInfo(ctx context.Context, clientID string, token string) (userID string, tokenID string, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Storage) SigningKey(ctx context.Context) (op.SigningKey, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Storage) SignatureAlgorithms(ctx context.Context) ([]jose.SignatureAlgorithm, error) {
+	return []jose.SignatureAlgorithm{jose.HS256}, nil
+}
+
+func (s *Storage) KeySet(ctx context.Context) ([]op.Key, error) {
+	return []op.Key{}, nil
+}
 
 func (s *Storage) GetClientByClientID(ctx context.Context, clientID string) (op.Client, error) {
 	s.lock.Lock()
@@ -181,11 +233,6 @@ func (s *Storage) AuthorizeClientIDSecret(ctx context.Context, clientID, clientS
 //}
 //
 //func (s *Storage) ValidateJWTProfileScopes(ctx context.Context, userID string, scopes []string) ([]string, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) CheckUsernamePassword(username, password, id string) error {
 //	//TODO implement me
 //	panic("implement me")
 //}

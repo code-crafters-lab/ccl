@@ -44,3 +44,28 @@ func Test_Migration(t *testing.T) {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 }
+
+func WithTx(fn func(tx *ent.Tx) error) {
+	tx, err = client.Tx(ctx)
+	if err != nil {
+		log.Fatalf("failed starting a transaction: %v", err)
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err := tx.Rollback()
+			if err != nil {
+				return
+			}
+		}
+	}()
+
+	if err = fn(tx); err != nil {
+		if err = tx.Rollback(); err != nil {
+			log.Fatalf("rolling back transaction: %v", err)
+		}
+		return
+	}
+	if err = tx.Commit(); err != nil {
+		log.Fatalf("committing transaction: %v", err)
+	}
+}

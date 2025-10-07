@@ -8,7 +8,7 @@ import (
 
 type cclExtension struct {
 	logger *zap.Logger
-	entc.Extension
+	entc.DefaultExtension
 }
 
 func (ccl cclExtension) Hooks() []gen.Hook {

@@ -14,7 +14,7 @@ var (
 )
 
 const (
-	queryAuthRequestID = "authRequestID"
+	queryAuthRequestID = "aid"
 )
 
 func errMsg(err error) string {

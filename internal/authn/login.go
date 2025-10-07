@@ -9,21 +9,20 @@ import (
 	"github.com/zitadel/oidc/v3/pkg/op"
 )
 
-type Authenticate interface {
-	LoginByUsernamePassword(username, password, authId string) error
-	//CheckUsernamePassword(username, password, id string) error
+type Authentication interface {
+	LoginByUsernamePassword(ctx context.Context, username, password, authId string) error
 }
 
 type login struct {
-	authenticate Authenticate
-	router       chi.Router
-	callback     func(context.Context, string) string
+	authentication Authentication
+	router         chi.Router
+	callback       func(context.Context, string) string
 }
 
-func NewLogin(authenticate Authenticate, callback func(context.Context, string) string, issuerInterceptor *op.IssuerInterceptor) *login {
+func NewLogin(authentication Authentication, callback func(context.Context, string) string, issuerInterceptor *op.IssuerInterceptor) *login {
 	l := &login{
-		authenticate: authenticate,
-		callback:     callback,
+		authentication: authentication,
+		callback:       callback,
 	}
 	l.createRouter(issuerInterceptor)
 	return l
@@ -69,7 +68,7 @@ func (l *login) checkLoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	id := r.FormValue("id")
-	err = l.authenticate.LoginByUsernamePassword(username, password, id)
+	err = l.authentication.LoginByUsernamePassword(r.Context(), username, password, id)
 	if err != nil {
 		renderLogin(w, id, err)
 		return

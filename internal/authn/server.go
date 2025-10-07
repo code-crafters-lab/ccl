@@ -28,7 +28,7 @@ var (
 )
 
 type AuthorizationServer interface {
-	Authenticate
+	Authentication
 	OIDC() (op.OpenIDProvider, error)
 	RegisterRouter() (chi.Router, error)
 	Run() error
@@ -36,14 +36,12 @@ type AuthorizationServer interface {
 
 type authorizationServer struct {
 	logger       *slog.Logger
-	storage      op.Storage
+	storage      storage
 	extraOptions []op.Option
 }
 
-func (a *authorizationServer) LoginByUsernamePassword(username, password, authId string) error {
-	//TODO implement me
-	a.logger.Info("LoginByUsernamePassword: %s => %s,%s", username, password, authId)
-	return nil
+func (a *authorizationServer) LoginByUsernamePassword(ctx context.Context, username, password, authId string) error {
+	return a.storage.LoginByUsernamePassword(ctx, username, password, authId)
 }
 
 func (a *authorizationServer) OIDC() (op.OpenIDProvider, error) {
@@ -102,10 +100,10 @@ func (a *authorizationServer) RegisterRouter() (chi.Router, error) {
 
 	// --- 公开路由 ---
 	router.Group(func(r chi.Router) {
-		//l := NewLogin(a, op.AuthCallbackURL(provider), op.NewIssuerInterceptor(provider.IssuerFromRequest))
-		//router.Mount("/login/", http.StripPrefix("/login", l.router))
-		r.Get("/login", loginPageHandler)
-		r.Post("/login", loginSubmitHandler)
+		l := NewLogin(a, op.AuthCallbackURL(provider), op.NewIssuerInterceptor(provider.IssuerFromRequest))
+		router.Mount("/login", http.StripPrefix("/login", l.router))
+		//r.Get("/login", loginPageHandler)
+		//r.Post("/login", loginSubmitHandler)
 	})
 
 	// --- 受保护路由 ---
@@ -259,7 +257,8 @@ func dashboardHandler(w http.ResponseWriter, r *http.Request) {
 		<html>
 		<body>
 			<h1>Welcome to Dashboard!</h1>
-			<p><a href="http://localhost/oauth2/authorize?client_id=web&response_type=code&scope=openid&redirect_uri=http://localhost:5000/auth/callback&code_challenge_method=S256&code_challenge=FWOeBX6Qw_krhUE2M0lOIH3jcxaZzfs5J4jtai5hOX4
+			<p><a href="/.well-known/openid-configuration">well-known</a></p>
+			<p><a href="/oauth2/authorize?client_id=web&response_type=code&scope=openid&redirect_uri=http://localhost:5000/auth/callback&code_challenge_method=S256&code_challenge=uh5zryRg8UqzGuXk7ao9V0Smo34i7icPBrubVWkDgEw
 ">SSO</a></p>
 			<p><a href="/profile">Go to Profile</a></p>
 			<p><a href="/logout">Logout</a></p>

@@ -1,0 +1,28 @@
+{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+
+{{ define "model/additional" }}
+
+    {{ if eq $.Name "User" -}}
+        // 校验密码用户密码是否一致
+        func ({{$.Receiver}} *{{.Name}}) VerifyPassword(encoder password.Encoder, plaintext string) error {
+        if !encoder.Matches(plaintext, *{{$.Receiver}}.Password) {
+        return fmt.Errorf("密码不正确")
+        }
+        return nil
+        }
+    {{ end -}}
+
+    {{ $hasExpiresAt := false }}
+    {{ range $f := $.Fields -}}
+        {{ if eq $f.Name "expires_at" -}}
+            {{ $hasExpiresAt = true -}}
+        {{ end -}}
+    {{ end -}}
+    {{ if $hasExpiresAt -}}
+        // IsExpired returns true if it has expired.
+        func ({{$.Receiver}} *{{.Name}}) IsExpired() bool {
+        return {{$.Receiver}}.ExpiresAt.Before(time.Now())
+        }
+    {{ end }}
+
+{{ end }}

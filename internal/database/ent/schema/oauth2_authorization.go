@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -29,7 +30,7 @@ func (OAuth2Authorization) Fields() []ent.Field {
 		field.String("response_mode").Comment("").Optional().Nillable(),
 		field.Bool("finished").Default(false).Comment("授权是否已完成"),
 		field.Time("auth_time").Comment("授权时间").Optional().Nillable(),
-		field.JSON("attributes", &oauth2.AuthorizationAttributes{}).Comment("其他参数"),
+		field.JSON("attributes", &oauth2.AuthorizationAttributes{}).Comment("其他参数").Optional(),
 		FieldCreatedAt,
 	}
 }
@@ -40,7 +41,7 @@ func (OAuth2Authorization) Indexes() []ent.Index {
 
 func (OAuth2Authorization) Edges() []ent.Edge {
 	return []ent.Edge{
-		//edge.To("code", OAuth2AuthorizationCode.Type).Unique().Field("authorization_id"),
+		edge.To("authorization_code", OAuth2AuthorizationCode.Type).Unique(),
 	}
 }
 

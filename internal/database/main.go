@@ -37,6 +37,7 @@ func main() {
 	if err := entc.Generate("./ent/schema", &gen.Config{
 		Features: []gen.Feature{
 			//gen.FeaturePrivacy,
+			gen.FeatureIntercept,
 			gen.FeatureEntQL,
 			gen.FeatureGlobalID,
 			gen.FeatureModifier,
