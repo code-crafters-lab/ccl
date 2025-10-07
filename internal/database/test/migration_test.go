@@ -2,8 +2,8 @@ package test
 
 import (
 	"ccl/db/ent"
+	"ccl/db/ent/hook"
 	_ "ccl/db/ent/runtime"
-	"ccl/db/hooks"
 	"context"
 	"fmt"
 	"log"
@@ -27,7 +27,7 @@ func init() {
 	client, err = ent.Open(dialect.MySQL, dsn)
 	// 全局 hook
 	//client.Use(hooks.PasswordHook)
-	client.User.Use(hooks.PasswordHook)
+	client.User.Use(hook.PasswordHook)
 	if err != nil {
 		log.Fatalf("failed opening connection to mysql: %v", err)
 	}

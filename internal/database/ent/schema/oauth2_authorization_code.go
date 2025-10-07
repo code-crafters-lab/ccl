@@ -15,9 +15,9 @@ type OAuth2AuthorizationCode struct {
 
 func (OAuth2AuthorizationCode) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("authorized_id").Comment("授权 ID"),
+		field.Int("authorization_id").Comment("授权 ID"),
 		field.String("code").Comment("授权码"),
-		field.String("state").Comment("防止重放攻击参数"),
+		field.String("state").Comment("防止重放攻击参数").Deprecated("主表已有"),
 		field.Bool("is_used").Comment("是否已使用").Default(false),
 		field.Time("issued_at").Comment("签发时间").Default(time.Now).Immutable(),
 		field.Time("expires_at").Comment("过期时间").Default(func() time.Time {
@@ -32,7 +32,11 @@ func (OAuth2AuthorizationCode) Indexes() []ent.Index {
 }
 
 func (OAuth2AuthorizationCode) Edges() []ent.Edge {
-	return []ent.Edge{}
+	return []ent.Edge{
+		//edge.From("authorization", OAuth2Authorization.Type).
+		//	Ref("authorization_code").
+		//	Unique().Required(),
+	}
 }
 
 func (OAuth2AuthorizationCode) Annotations() []schema.Annotation {

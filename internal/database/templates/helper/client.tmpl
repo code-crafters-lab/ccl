@@ -1,0 +1,112 @@
+{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+{{ define "oauth2_storage/helper/client"}}
+
+    // {{.Name}} 实现了 OIDC op.Client 接口
+    func (c *{{.Name}}) GetID() string {
+    return c.ID
+    }
+
+    func (c *{{.Name}}) RedirectURIs() []string {
+    return c.RedirectUris
+    }
+
+    func (c *{{.Name}}) PostLogoutRedirectURIs() []string {
+    return c.PostLogoutRedirectUris
+    }
+
+    func (c *{{.Name}}) ApplicationType() op.ApplicationType {
+    switch c.AppType {
+    case "web":
+    return op.ApplicationTypeWeb
+    case "user_agent":
+    return op.ApplicationTypeUserAgent
+    case "native":
+    return op.ApplicationTypeNative
+    default:
+    return op.ApplicationTypeWeb
+    }
+    }
+
+    func (c *{{.Name}}) AuthMethod() oidc.AuthMethod {
+    if c.AuthenticationMethod == "" {
+    return oidc.AuthMethod(c.AuthenticationMethod)
+    }
+    return oidc.AuthMethodNone
+    }
+
+    func (c *{{.Name}}) ResponseTypes() []oidc.ResponseType {
+    if c.ClientSettings != nil {
+    responseTypes := make([]oidc.ResponseType, len(c.ClientSettings.ResponseTypes))
+    for i, responseType := range c.ClientSettings.ResponseTypes {
+    responseTypes[i] = oidc.ResponseType(responseType)
+    }
+    }
+    return []oidc.ResponseType{
+    oidc.ResponseTypeCode,
+    }
+    }
+
+    func (c *{{.Name}}) GrantTypes() []oidc.GrantType {
+    if len(c.AuthorizationGrantTypes) > 0 {
+    grantTypes := make([]oidc.GrantType, len(c.AuthorizationGrantTypes))
+    for i, grantType := range c.AuthorizationGrantTypes {
+    grantTypes[i] = oidc.GrantType(grantType)
+    }
+    return grantTypes
+    }
+    return []oidc.GrantType{
+    oidc.GrantTypeCode,
+    oidc.GrantTypeRefreshToken,
+    oidc.GrantTypeClientCredentials,
+    }
+    }
+
+    func (c *{{.Name}}) LoginURL(id string) string {
+    return "/login" + "?aid=" + id
+    }
+
+    func (c *{{.Name}}) AccessTokenType() op.AccessTokenType {
+    // TODO: implement
+    return op.AccessTokenType(0)
+    }
+
+    func (c *{{.Name}}) IDTokenLifetime() time.Duration {
+    if c.TokenSettings != nil && c.TokenSettings.IdTokenTimeToLive != nil {
+    return *c.TokenSettings.IdTokenTimeToLive
+    }
+    return time.Hour * 1
+    }
+
+    func (c *{{.Name}}) DevMode() bool {
+    return c.IsDev
+    }
+
+    func (c *{{.Name}}) RestrictAdditionalIdTokenScopes() func(scopes []string) []string {
+    return func(scopes []string) []string {
+    return scopes
+    }
+    }
+
+    func (c *{{.Name}}) RestrictAdditionalAccessTokenScopes() func(scopes []string) []string {
+    return func(scopes []string) []string {
+    return scopes
+    }
+    }
+
+    func (c *{{.Name}}) IsScopeAllowed(scope string) bool {
+    return false
+    }
+
+    func (c *{{.Name}}) IDTokenUserinfoClaimsAssertion() bool {
+    return false
+    }
+
+    func (c *{{.Name}}) ClockSkew() time.Duration {
+    if c.TimeOffset != nil {
+    return time.Duration(*c.TimeOffset)
+    }
+    return 0
+    }
+{{ end }}
+
+

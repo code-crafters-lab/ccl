@@ -2,10 +2,6 @@ package oauth2
 
 import "time"
 
-type ClientSettings struct {
-	ResponseTypes []string `json:"response_types"` // 响应类型
-}
-
 type TokenSettings struct {
 	AuthorizationCodeTimeToLive *time.Duration `json:"authorization_code_time_to_live"` // 授权码过期时间
 	AccessTokenTimeToLive       *time.Duration `json:"access_token_time_to_live"`       // 访问令牌过期时间

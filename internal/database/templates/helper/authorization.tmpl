@@ -1,0 +1,87 @@
+{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+{{ define "oauth2_storage/helper/authorization"}}
+
+    // {{.Name}} 实现了 OIDC op.AuthRequest 接口
+    func (ac *{{.Name}}) GetID() string {
+    return strconv.Itoa(ac.ID)
+    }
+
+    func (ac *{{.Name}}) GetACR() string {
+    // TODO implement me
+    return ""
+    }
+
+    // [RFC 8176, section 2]: https://datatracker.ietf.org/doc/html/rfc8176#section-2
+    func (ac *{{.Name}}) GetAMR() []string {
+    // TODO implement me
+    return nil
+    }
+
+    func (ac *{{.Name}}) GetAudience() []string {
+    if ac.Attributes != nil {
+    return ac.Attributes.Audience
+    }
+    return nil
+    }
+
+    func (ac *{{.Name}}) GetAuthTime() time.Time {
+    return *ac.AuthTime
+    }
+
+    func (ac *{{.Name}}) GetClientID() string {
+    return ac.ClientID
+    }
+
+    func (ac *{{.Name}}) GetCodeChallenge() *oidc.CodeChallenge {
+    challenge := *ac.CodeChallenge
+    method := *ac.CodeChallengeMethod
+    var challengeMethod oidc.CodeChallengeMethod
+    switch method {
+    case "S256":
+    challengeMethod = oidc.CodeChallengeMethodS256
+    case "plain":
+    challengeMethod = oidc.CodeChallengeMethodPlain
+    default:
+    return nil
+    }
+    return &oidc.CodeChallenge{
+    Challenge: challenge,
+    Method:    challengeMethod,
+    }
+    }
+
+    func (ac *{{.Name}}) GetNonce() string {
+    return *ac.Nonce
+    }
+
+    func (ac *{{.Name}}) GetRedirectURI() string {
+    return ac.RedirectURI
+    }
+
+    func (ac *{{.Name}}) GetResponseType() oidc.ResponseType {
+    return oidc.ResponseType(ac.ResponseType)
+    }
+
+    func (ac *{{.Name}}) GetResponseMode() oidc.ResponseMode {
+    return oidc.ResponseMode(*ac.ResponseMode)
+    }
+
+    func (ac *{{.Name}}) GetScopes() []string {
+    return ac.Scopes
+    }
+
+    func (ac *{{.Name}}) GetState() string {
+    return *ac.State
+    }
+
+    func (ac *{{.Name}}) GetSubject() string {
+    return *ac.Subject
+    }
+
+    func (ac *{{.Name}}) Done() bool {
+    // TODO implement me，check if all steps are done
+    return ac.Finished && *ac.Subject != ""
+    }
+{{ end }}
+
+

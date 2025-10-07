@@ -2,9 +2,12 @@ package authn
 
 import (
 	"ccl/db/ent"
+	"ccl/db/ent/oauth2authorization"
 	"ccl/db/ent/oauth2client"
+	"ccl/db/oauth2"
 	"context"
 	"fmt"
+	"strconv"
 	"sync"
 
 	oidcstorage "github.com/zitadel/oidc/v3/example/server/storage"
@@ -43,14 +46,32 @@ func (s *Storage) CreateAuthRequest(ctx context.Context, authReq *oidc.AuthReque
 		return nil, oidc.ErrLoginRequired()
 	}
 	// 数据库存储
-	//authorization, err := s.db.OAuth2Authorization.Create().SetScopes(authReq.Scopes).Save(ctx)
-	//return authorization, err
-	return nil, nil
+	create := s.db.OAuth2Authorization.Create()
+	create.SetScopes(authReq.Scopes)
+	create.SetResponseType(string(authReq.ResponseType))
+	create.SetClientID(authReq.ClientID)
+	create.SetRedirectURI(authReq.RedirectURI)
+	create.SetState(authReq.State)
+	create.SetNonce(authReq.Nonce)
+	create.SetResponseMode(string(authReq.ResponseMode))
+	ccm := string(authReq.CodeChallengeMethod)
+	create.SetCodeChallengeMethod(ccm)
+	create.SetCodeChallenge(authReq.CodeChallenge)
+	attributes := oauth2.ConvertAuthRequest2Attributes(authReq)
+	create.SetAttributes(attributes)
+	authorization, err := create.Save(ctx)
+	return authorization, err
 }
 
 func (s *Storage) AuthRequestByID(ctx context.Context, authId string) (op.AuthRequest, error) {
-	//TODO implement me
-	panic("implement me")
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	aid, err := strconv.Atoi(authId)
+	if err != nil {
+		return nil, err
+	}
+	authorization, err := s.db.OAuth2Authorization.Query().Where(oauth2authorization.ID(aid)).Only(ctx)
+	return authorization, err
 }
 
 func (s *Storage) AuthRequestByCode(ctx context.Context, code string) (op.AuthRequest, error) {

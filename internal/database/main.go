@@ -24,6 +24,9 @@ func main() {
 	}
 	log := logger.Sugar()
 	opts := []entc.Option{
+		//entc.Dependency(
+		//	entc.DependencyType(&zap.Logger{}),
+		//),
 		entc.Extensions(extension.Extension(log)),
 	}
 	// 2. 递归遍历源目录
