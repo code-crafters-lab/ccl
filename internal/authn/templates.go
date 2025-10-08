@@ -10,7 +10,7 @@ import (
 var (
 	//go:embed templates
 	templateFS embed.FS
-	templates  = template.Must(template.ParseFS(templateFS, "templates/*.html"))
+	templates  = template.Must(template.ParseFS(templateFS, "templates/*.tmpl"))
 )
 
 const (
