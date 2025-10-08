@@ -2,6 +2,7 @@ package authn
 
 import (
 	"ccl/db/ent"
+	"ccl/db/ent/oauth2accesstoken"
 	"ccl/db/ent/oauth2authorization"
 	"ccl/db/ent/oauth2authorizationcode"
 	"ccl/db/ent/oauth2client"
@@ -193,8 +194,30 @@ func (s *Storage) DeleteAuthRequest(ctx context.Context, authId string) error {
 }
 
 func (s *Storage) CreateAccessToken(ctx context.Context, request op.TokenRequest) (accessTokenID string, expiration time.Time, err error) {
-	//TODO implement me
-	return "1", time.Now().Add(time.Minute * 5), err
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	tokenCreate := s.db.OAuth2AccessToken.Create()
+	tokenCreate.SetSubject(request.GetSubject())
+	tokenCreate.SetAudience(request.GetAudience())
+	tokenCreate.SetScopes(request.GetScopes())
+	now := time.Now()
+	tokenCreate.SetCreatedAt(now)
+	if authReq, ok := request.(op.AuthRequest); ok {
+		clientID := authReq.GetClientID()
+		tokenCreate.SetClientID(clientID)
+		cli, _ := s.db.OAuth2Client.Query().Where(oauth2client.IDEQ(clientID)).Only(ctx)
+		duration := time.Minute * 5
+		if cli != nil && cli.TokenSettings != nil && cli.TokenSettings.AccessTokenTimeToLive != nil {
+			duration = *cli.TokenSettings.AccessTokenTimeToLive
+		}
+		tokenCreate.SetExpiresAt(now.Add(duration))
+	}
+
+	token, err := tokenCreate.Save(ctx)
+	if err == nil {
+		return strconv.Itoa(token.ID), token.ExpiresAt, nil
+	}
+	return "", time.Now().Add(time.Minute * 5), err
 }
 
 func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.TokenRequest, currentRefreshToken string) (accessTokenID string, newRefreshToken string, expiration time.Time, err error) {
@@ -218,8 +241,8 @@ func (s *Storage) RevokeToken(ctx context.Context, tokenOrTokenID string, userID
 }
 
 func (s *Storage) GetRefreshTokenInfo(ctx context.Context, clientID string, token string) (userID string, tokenID string, err error) {
-	//TODO implement me
-	panic("implement me")
+	//TODO 先成数据库查询 refresh_token 信息
+	return "", "", op.ErrInvalidRefreshToken
 }
 
 func (s *Storage) SigningKey(ctx context.Context) (op.SigningKey, error) {
@@ -249,8 +272,14 @@ func (s *Storage) AuthorizeClientIDSecret(ctx context.Context, clientID, clientS
 	if err != nil {
 		return err
 	}
-	if *client.Secret != clientSecret {
-		return fmt.Errorf("invalid secret")
+	switch client.AuthenticationMethod {
+	case "client_secret_basic":
+	case "client_secret_post":
+		if *client.Secret != clientSecret {
+			return fmt.Errorf("invalid secret")
+		}
+	case "none":
+		return nil
 	}
 	return nil
 }
@@ -300,9 +329,20 @@ func (s *Storage) SetUserinfoFromToken(ctx context.Context, userinfo *oidc.UserI
 	return fmt.Errorf("not implemented")
 }
 
-func (s *Storage) SetIntrospectionFromToken(ctx context.Context, userinfo *oidc.IntrospectionResponse, tokenID, subject, clientID string) error {
-	//TODO implement me
-	return fmt.Errorf("not implemented")
+func (s *Storage) SetIntrospectionFromToken(ctx context.Context, introspectionResponse *oidc.IntrospectionResponse, tokenID, subject, clientID string) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	tid, _ := strconv.Atoi(tokenID)
+	accessToken, err := s.db.OAuth2AccessToken.Query().Where(oauth2accesstoken.IDEQ(tid)).Only(ctx)
+	if accessToken.IsExpired() {
+		return fmt.Errorf("token is expired")
+	}
+	//introspectionResponse.Scope = accessToken.Scopes
+	//introspectionResponse.ClientID = accessToken.ClientID
+	//introspectionResponse.Subject = *accessToken.Subject
+	//introspectionResponse.IssuedAt = oidc.FromTime(accessToken.IssuedAt)
+	//introspectionResponse.Expiration = oidc.FromTime(accessToken.ExpiresAt)
+	return err
 }
 
 func (s *Storage) GetPrivateClaimsFromScopes(ctx context.Context, userID, clientID string, scopes []string) (map[string]any, error) {
