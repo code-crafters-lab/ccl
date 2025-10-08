@@ -41,7 +41,9 @@ func (OAuth2Authorization) Indexes() []ent.Index {
 
 func (OAuth2Authorization) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("authorization_code", OAuth2AuthorizationCode.Type).Unique(),
+		edge.To("authorization_code", OAuth2AuthorizationCode.Type).Unique().Annotations(
+			entsql.OnDelete(entsql.Cascade),
+		),
 	}
 }
 
