@@ -6,8 +6,11 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"html/template"
+	"io"
+	"log"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"syscall"
 	"time"
 
@@ -102,9 +105,9 @@ func (a *authorizationServer) RegisterRouter() (chi.Router, error) {
 	router.Group(func(r chi.Router) {
 		l := NewLogin(a, op.AuthCallbackURL(provider), op.NewIssuerInterceptor(provider.IssuerFromRequest))
 		router.Mount("/login", http.StripPrefix("/login", l.router))
-		//r.Get("/login", loginPageHandler)
-		//r.Post("/login", loginSubmitHandler)
 	})
+
+	router.Get("/auth/callback/test", codeHandler)
 
 	// --- 受保护路由 ---
 	router.Group(func(r chi.Router) {
@@ -237,6 +240,43 @@ func loginSubmitHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, html, nil)
 }
 
+func codeHandler(w http.ResponseWriter, r *http.Request) {
+	code := r.FormValue("code")
+	state := r.FormValue("state")
+	log.Printf("code: %s, state: %s", code, state)
+
+	// 1. 准备表单数据
+	formData := url.Values{
+		"client_id":     {"web"},
+		"grant_type":    {"authorization_code"},
+		"code":          {code},
+		"code_verifier": {"BUn8vDyURwERA1n~LtuC7CbGGgsvJp_CSAs-SvRbIZPGXkqFeXJC29Lc.TDZqIrJ"},
+		"redirect_uri":  {"http://localhost/auth/callback/test"},
+	}
+	// 2. 发送 POST 请求
+	u := fmt.Sprintf("%s://%s/oauth2/token", "http", r.Host)
+	resp, err := http.PostForm(u, formData)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// 3. 确保响应体被关闭
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(resp.Body)
+
+	// 4. 检查响应状态码
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Request failed with status code: %d", resp.StatusCode)
+	}
+
+	// 5. 读取并打印响应体
+	body, err := io.ReadAll(resp.Body)
+	log.Printf("Response body: %s", body)
+}
+
 // 登出处理器
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// 清除 session cookie
@@ -258,7 +298,7 @@ func dashboardHandler(w http.ResponseWriter, r *http.Request) {
 		<body>
 			<h1>Welcome to Dashboard!</h1>
 			<p><a href="/.well-known/openid-configuration">well-known</a></p>
-			<p><a href="/oauth2/authorize?client_id=web&response_type=code&scope=openid&redirect_uri=http://localhost:5000/auth/callback&code_challenge_method=S256&code_challenge=uh5zryRg8UqzGuXk7ao9V0Smo34i7icPBrubVWkDgEw
+			<p><a href="/oauth2/authorize?client_id=web&response_type=code&scope=openid&redirect_uri=http://localhost/auth/callback/test&state=123456&code_challenge_method=S256&code_challenge=uh5zryRg8UqzGuXk7ao9V0Smo34i7icPBrubVWkDgEw
 ">SSO</a></p>
 			<p><a href="/profile">Go to Profile</a></p>
 			<p><a href="/logout">Logout</a></p>

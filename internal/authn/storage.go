@@ -8,6 +8,8 @@ import (
 	"ccl/db/ent/user"
 	"ccl/db/oauth2"
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
 	"errors"
 	"fmt"
 	"strconv"
@@ -16,9 +18,48 @@ import (
 
 	pwd "github.com/coffee377/autoctl/pkg/security/password"
 	"github.com/go-jose/go-jose/v4"
+	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 	"github.com/zitadel/oidc/v3/pkg/op"
 )
+
+type signingKey struct {
+	id        string
+	algorithm jose.SignatureAlgorithm
+	key       *rsa.PrivateKey
+}
+
+func (s *signingKey) SignatureAlgorithm() jose.SignatureAlgorithm {
+	return s.algorithm
+}
+
+func (s *signingKey) Key() any {
+	return s.key
+}
+
+func (s *signingKey) ID() string {
+	return s.id
+}
+
+type publicKey struct {
+	signingKey
+}
+
+func (s *publicKey) ID() string {
+	return s.id
+}
+
+func (s *publicKey) Algorithm() jose.SignatureAlgorithm {
+	return s.algorithm
+}
+
+func (s *publicKey) Use() string {
+	return "sig"
+}
+
+func (s *publicKey) Key() any {
+	return &s.key.PublicKey
+}
 
 type storage interface {
 	Authentication
@@ -27,14 +68,22 @@ type storage interface {
 
 type Storage struct {
 	storage
-	lock sync.Mutex
-	db   *ent.Client
+	lock       sync.Mutex
+	db         *ent.Client
+	signingKey signingKey
 }
 
 func NewStorage(client *ent.Client) *Storage {
+	key, _ := rsa.GenerateKey(rand.Reader, 2048)
+
 	return &Storage{
 		lock: sync.Mutex{},
 		db:   client,
+		signingKey: signingKey{
+			id:        uuid.NewString(),
+			algorithm: jose.RS256,
+			key:       key,
+		},
 	}
 }
 
@@ -174,16 +223,15 @@ func (s *Storage) GetRefreshTokenInfo(ctx context.Context, clientID string, toke
 }
 
 func (s *Storage) SigningKey(ctx context.Context) (op.SigningKey, error) {
-	//TODO implement me
-	panic("implement me")
+	return &s.signingKey, nil
 }
 
 func (s *Storage) SignatureAlgorithms(ctx context.Context) ([]jose.SignatureAlgorithm, error) {
-	return []jose.SignatureAlgorithm{jose.HS256}, nil
+	return []jose.SignatureAlgorithm{s.signingKey.algorithm}, nil
 }
 
 func (s *Storage) KeySet(ctx context.Context) ([]op.Key, error) {
-	return []op.Key{}, nil
+	return []op.Key{&publicKey{s.signingKey}}, nil
 }
 
 func (s *Storage) GetClientByClientID(ctx context.Context, clientID string) (op.Client, error) {
@@ -207,32 +255,67 @@ func (s *Storage) AuthorizeClientIDSecret(ctx context.Context, clientID, clientS
 	return nil
 }
 
-//func (s *Storage) SetUserinfoFromScopes(ctx context.Context, userinfo *oidc.UserInfo, userID, clientID string, scopes []string) error {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) SetUserinfoFromToken(ctx context.Context, userinfo *oidc.UserInfo, tokenID, subject, origin string) error {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) SetIntrospectionFromToken(ctx context.Context, userinfo *oidc.IntrospectionResponse, tokenID, subject, clientID string) error {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) GetPrivateClaimsFromScopes(ctx context.Context, userID, clientID string, scopes []string) (map[string]any, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) GetKeyByIDAndClientID(ctx context.Context, keyID, clientID string) (*jose.JSONWebKey, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s *Storage) ValidateJWTProfileScopes(ctx context.Context, userID string, scopes []string) ([]string, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
+func (s *Storage) SetUserinfoFromScopes(ctx context.Context, userinfo *oidc.UserInfo, userID, clientID string, scopes []string) error {
+	return nil
+}
+
+func (s *Storage) SetUserinfoFromRequest(ctx context.Context, userinfo *oidc.UserInfo, request op.IDTokenRequest, scopes []string) error {
+	return s.setUserinfo(ctx, userinfo, request.GetSubject(), request.GetClientID(), scopes)
+}
+
+// setUserinfo sets the info based on the user, scopes and if necessary the clientID
+func (s *Storage) setUserinfo(ctx context.Context, userInfo *oidc.UserInfo, userID, clientID string, scopes []string) (err error) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	user, err := s.db.User.Query().Where(user.UsernameEQ(userID)).Only(ctx)
+	if err != nil {
+		return fmt.Errorf("user not found")
+	}
+	for _, scope := range scopes {
+		switch scope {
+		case oidc.ScopeOpenID:
+			userInfo.Subject = strconv.FormatInt(user.ID, 10)
+		case oidc.ScopeEmail:
+			userInfo.Email = *user.Email
+			userInfo.EmailVerified = oidc.Bool(user.EmailVerified)
+		case oidc.ScopeProfile:
+			userInfo.PreferredUsername = user.Username
+			//userInfo.Name = user.FirstName + " " + user.LastName
+			//userInfo.FamilyName = user.LastName
+			//userInfo.GivenName = user.FirstName
+			//userInfo.Locale = oidc.NewLocale(user.PreferredLanguage)
+		case oidc.ScopePhone:
+			userInfo.PhoneNumber = *user.Phone
+			userInfo.PhoneNumberVerified = user.PhoneVerified
+			//case CustomScope:
+			//	// you can also have a custom scope and assert public or custom claims based on that
+			//	userInfo.AppendClaims(CustomClaim, customClaim(clientID))
+		}
+	}
+	return nil
+}
+
+func (s *Storage) SetUserinfoFromToken(ctx context.Context, userinfo *oidc.UserInfo, tokenID, subject, origin string) error {
+	//TODO implement me
+	return fmt.Errorf("not implemented")
+}
+
+func (s *Storage) SetIntrospectionFromToken(ctx context.Context, userinfo *oidc.IntrospectionResponse, tokenID, subject, clientID string) error {
+	//TODO implement me
+	return fmt.Errorf("not implemented")
+}
+
+func (s *Storage) GetPrivateClaimsFromScopes(ctx context.Context, userID, clientID string, scopes []string) (map[string]any, error) {
+	//TODO implement me
+	return nil, fmt.Errorf("not implemented")
+}
+
+func (s *Storage) GetKeyByIDAndClientID(ctx context.Context, keyID, clientID string) (*jose.JSONWebKey, error) {
+	//TODO implement me
+	return nil, fmt.Errorf("not implemented")
+}
+
+func (s *Storage) ValidateJWTProfileScopes(ctx context.Context, userID string, scopes []string) ([]string, error) {
+	//TODO implement me
+	return nil, fmt.Errorf("not implemented")
+}
