@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"hash/fnv"
 	"math"
 	"os"
 	"path"
+	"reflect"
 	"strconv"
 	"strings"
 	"unicode"
@@ -188,6 +190,79 @@ func generateSQL(dictionaries []*dict, plugin *protogen.Plugin, file *protogen.F
 	}
 	g := plugin.NewGeneratedFile(filename, file.GoImportPath)
 	generatePreamble(g, "-- ", file, plugin)
+
+	for i, dictionary := range dictionaries {
+		g.P()
+		g.P(fmt.Sprintf("-- %d. %s", i+1, dictionary.Name))
+		// 字典插入
+
+		g.P(fmt.Sprintf("INSERT INTO %s (id, code, name, value_type, description) VALUES (%s);", "sys_dict", resolveDictValues(*dictionary)))
+		// 字典项插入
+		g.P(fmt.Sprintf("INSERT INTO %s (id, dict_id, code, name, value, sort, description)", "sys_dict_item"))
+		for j, item := range dictionary.Items {
+			var (
+				placeholder = "VALUES"
+				sep         = ","
+			)
+			if j > 0 {
+				placeholder = ""
+			}
+			if j == len(dictionary.Items)-1 {
+				sep = ";"
+			}
+
+			values := resolveItemValues(dictionary.ID, *item)
+			g.P(fmt.Sprintf("%6s (%s)%s", placeholder, values, sep))
+		}
+	}
+}
+
+func resolveDictValues(dict dict) string {
+	vals := []any{dict.ID, dict.FullCode, dict.Name, dict.ValueType, dict.Description}
+	values := make([]string, len(vals))
+	for i, v := range vals {
+		values[i] = resolveValue(reflect.ValueOf(v), nil)
+	}
+	return strings.Join(values, ", ")
+}
+
+func resolveItemValues(dictId uint64, item dictItem) string {
+	vals := []any{item.ID, dictId, item.Code, item.Name, item.Value, item.Sort, item.Description}
+	values := make([]string, len(vals))
+	for i, v := range vals {
+		values[i] = resolveValue(reflect.ValueOf(v), nil)
+	}
+	return strings.Join(values, ", ")
+}
+
+func resolveValue(value reflect.Value, defaultVale interface{}) string {
+	var result string
+	switch value.Kind() {
+	case reflect.Invalid:
+		def := reflect.ValueOf(defaultVale)
+		if def.Kind() == reflect.Invalid {
+			result = "null"
+		} else {
+			result = resolveValue(def, nil)
+		}
+	case reflect.String:
+		// todo 增加特殊字符串转义处理函数配置
+		v := strings.ReplaceAll(strings.TrimSpace(value.String()), "'", "\\'")
+		if v == "" {
+			result = "null"
+		} else {
+			result = fmt.Sprintf("'%s'", v)
+		}
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		result = fmt.Sprintf("%d", value.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		result = fmt.Sprintf("%d", value.Uint())
+	case reflect.Float32, reflect.Float64:
+		result = fmt.Sprintf("%f", value.Float())
+	default:
+		result = "null"
+	}
+	return fmt.Sprintf("%s", result)
 }
 
 // 生成 markdown
@@ -258,16 +333,16 @@ func generatePreamble(g *protogen.GeneratedFile, noteSymbol string, file *protog
 	}
 }
 
-type ValueType int
+type ValueType string
 
 const (
-	ValueTypeString ValueType = iota
-	ValueTypeNumber
+	ValueTypeString = "S"
+	ValueTypeNumber = "N"
 )
 
 type dict struct {
 	ValueType   ValueType   `json:"value_type"`
-	ID          int64       `json:"id"`
+	ID          uint64      `json:"id"`
 	Code        string      `json:"code"`
 	FullCode    string      `json:"full_code"`
 	Name        string      `json:"name"`
@@ -278,7 +353,7 @@ type dict struct {
 type dictItem struct {
 	zero        bool
 	valueType   ValueType
-	ID          int64  `json:"id"`
+	ID          uint64 `json:"id"`
 	Code        string `json:"code"`
 	Value       string `json:"value"`
 	Name        string `json:"name"`
@@ -309,14 +384,20 @@ func ofDict(enumDesc protoreflect.EnumDescriptor) *dict {
 		}
 	}
 	// 字典唯一 id 生成
-	d.ID = int64(enumDesc.Index())
+	d.ID = strToNumFNV64(d.FullCode)
 	// 字典项数据
-	items := ofDictItems(enumDesc, "其他（默认值）")
+	items := ofDictItems(enumDesc, d.ID, "其他（默认值）")
 	// 字典值类型
 	d.ValueType = valueTypeOf(items)
-
 	d.Items = items
 	return d
+}
+
+// 字符串转64位数字（FNV-1a哈希）
+func strToNumFNV64(s string) uint64 {
+	h := fnv.New64a() // 创建64位FNV-1a哈希器
+	_, _ = h.Write([]byte(s))
+	return h.Sum64() // 返回64位哈希值（uint64）
 }
 
 func valueTypeOf(items []*dictItem) ValueType {
@@ -328,19 +409,21 @@ func valueTypeOf(items []*dictItem) ValueType {
 	return ValueTypeNumber
 }
 
-func ofDictItems(enumDesc protoreflect.EnumDescriptor, defaultUnspecifiedName string) []*dictItem {
+func ofDictItems(enumDesc protoreflect.EnumDescriptor, did uint64, defaultUnspecifiedName string) []*dictItem {
 	valueDescriptors := enumDesc.Values()
 	items := make([]*dictItem, 0)
 
 	for j := range valueDescriptors.Len() {
 		enumValueDesc := valueDescriptors.Get(j)
+
 		item := &dictItem{
-			ID:        int64(enumValueDesc.Index()),
 			Code:      replaceEnumPrefix(string(enumValueDesc.Name()), enumDesc.Name()),
 			Value:     strconv.Itoa(int(enumValueDesc.Number())),
 			valueType: ValueTypeNumber,
 			Sort:      enumValueDesc.Index(),
 		}
+
+		item.ID = strToNumFNV64(fmt.Sprintf("%d_%s", did, item.Code))
 
 		if enumValueDesc.Number() == 0 {
 			item.zero = true

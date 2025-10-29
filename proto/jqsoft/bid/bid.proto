@@ -1,6 +1,6 @@
 edition = "2023";
 
-package bid;
+package jqsoft.bid;
 
 import "extension/dict.proto";
 
