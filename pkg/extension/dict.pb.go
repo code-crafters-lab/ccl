@@ -82,6 +82,74 @@ func (x *DictExtensionMetadata) GetReplaceWith() string {
 	return ""
 }
 
+type DictItemExtensionMetadata struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          *string                `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Value         *string                `protobuf:"bytes,3,opt,name=value" json:"value,omitempty"`
+	Description   *string                `protobuf:"bytes,4,opt,name=description" json:"description,omitempty"`
+	ReplaceWith   *string                `protobuf:"bytes,5,opt,name=replace_with,json=replaceWith" json:"replace_with,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DictItemExtensionMetadata) Reset() {
+	*x = DictItemExtensionMetadata{}
+	mi := &file_extension_dict_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DictItemExtensionMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DictItemExtensionMetadata) ProtoMessage() {}
+
+func (x *DictItemExtensionMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_extension_dict_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DictItemExtensionMetadata.ProtoReflect.Descriptor instead.
+func (*DictItemExtensionMetadata) Descriptor() ([]byte, []int) {
+	return file_extension_dict_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DictItemExtensionMetadata) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *DictItemExtensionMetadata) GetValue() string {
+	if x != nil && x.Value != nil {
+		return *x.Value
+	}
+	return ""
+}
+
+func (x *DictItemExtensionMetadata) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *DictItemExtensionMetadata) GetReplaceWith() string {
+	if x != nil && x.ReplaceWith != nil {
+		return *x.ReplaceWith
+	}
+	return ""
+}
+
 var file_extension_dict_proto_extTypes = []protoimpl.ExtensionInfo{
 	{
 		ExtendedType:  (*descriptorpb.FileOptions)(nil),
@@ -101,7 +169,7 @@ var file_extension_dict_proto_extTypes = []protoimpl.ExtensionInfo{
 	},
 	{
 		ExtendedType:  (*descriptorpb.EnumValueOptions)(nil),
-		ExtensionType: (*DictExtensionMetadata)(nil),
+		ExtensionType: (*DictItemExtensionMetadata)(nil),
 		Field:         1001,
 		Name:          "ccl.item",
 		Tag:           "bytes,1001,opt,name=item",
@@ -123,7 +191,7 @@ var (
 
 // Extension fields to descriptorpb.EnumValueOptions.
 var (
-	// optional ccl.DictExtensionMetadata item = 1001;
+	// optional ccl.DictItemExtensionMetadata item = 1001;
 	E_Item = &file_extension_dict_proto_extTypes[2]
 )
 
@@ -135,11 +203,16 @@ const file_extension_dict_proto_rawDesc = "" +
 	"\x15DictExtensionMetadata\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12!\n" +
-	"\freplace_with\x18\x04 \x01(\tR\vreplaceWithJ\x04\b\x01\x10\x02R\x04code:E\n" +
+	"\freplace_with\x18\x04 \x01(\tR\vreplaceWithJ\x04\b\x01\x10\x02R\x04code\"\x96\x01\n" +
+	"\x19DictItemExtensionMetadata\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05value\x18\x03 \x01(\tR\x05value\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12!\n" +
+	"\freplace_with\x18\x05 \x01(\tR\vreplaceWithJ\x04\b\x01\x10\x02R\x04code:E\n" +
 	"\vdict_enable\x12\x1c.google.protobuf.FileOptions\x18\xe9\a \x01(\b:\x05falseR\n" +
 	"dictEnable:M\n" +
-	"\x04dict\x12\x1c.google.protobuf.EnumOptions\x18\xe9\a \x01(\v2\x1a.ccl.DictExtensionMetadataR\x04dict:R\n" +
-	"\x04item\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\v2\x1a.ccl.DictExtensionMetadataR\x04itemBp\n" +
+	"\x04dict\x12\x1c.google.protobuf.EnumOptions\x18\xe9\a \x01(\v2\x1a.ccl.DictExtensionMetadataR\x04dict:V\n" +
+	"\x04item\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\v2\x1e.ccl.DictItemExtensionMetadataR\x04itemBp\n" +
 	"\acom.cclB\tDictProtoP\x01Z.github.com/code-crafters-lab/ccl/pkg/extension\xa2\x02\x03CXX\xaa\x02\x03Ccl\xca\x02\x03Ccl\xe2\x02\x0fCcl\\GPBMetadata\xea\x02\x03Cclb\beditionsp\xe8\a"
 
 var (
@@ -154,19 +227,20 @@ func file_extension_dict_proto_rawDescGZIP() []byte {
 	return file_extension_dict_proto_rawDescData
 }
 
-var file_extension_dict_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_extension_dict_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_extension_dict_proto_goTypes = []any{
 	(*DictExtensionMetadata)(nil),         // 0: ccl.DictExtensionMetadata
-	(*descriptorpb.FileOptions)(nil),      // 1: google.protobuf.FileOptions
-	(*descriptorpb.EnumOptions)(nil),      // 2: google.protobuf.EnumOptions
-	(*descriptorpb.EnumValueOptions)(nil), // 3: google.protobuf.EnumValueOptions
+	(*DictItemExtensionMetadata)(nil),     // 1: ccl.DictItemExtensionMetadata
+	(*descriptorpb.FileOptions)(nil),      // 2: google.protobuf.FileOptions
+	(*descriptorpb.EnumOptions)(nil),      // 3: google.protobuf.EnumOptions
+	(*descriptorpb.EnumValueOptions)(nil), // 4: google.protobuf.EnumValueOptions
 }
 var file_extension_dict_proto_depIdxs = []int32{
-	1, // 0: ccl.dict_enable:extendee -> google.protobuf.FileOptions
-	2, // 1: ccl.dict:extendee -> google.protobuf.EnumOptions
-	3, // 2: ccl.item:extendee -> google.protobuf.EnumValueOptions
+	2, // 0: ccl.dict_enable:extendee -> google.protobuf.FileOptions
+	3, // 1: ccl.dict:extendee -> google.protobuf.EnumOptions
+	4, // 2: ccl.item:extendee -> google.protobuf.EnumValueOptions
 	0, // 3: ccl.dict:type_name -> ccl.DictExtensionMetadata
-	0, // 4: ccl.item:type_name -> ccl.DictExtensionMetadata
+	1, // 4: ccl.item:type_name -> ccl.DictItemExtensionMetadata
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	3, // [3:5] is the sub-list for extension type_name
@@ -185,7 +259,7 @@ func file_extension_dict_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_extension_dict_proto_rawDesc), len(file_extension_dict_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 3,
 			NumServices:   0,
 		},

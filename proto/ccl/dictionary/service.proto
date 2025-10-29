@@ -1,0 +1,38 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/resources";
+
+package ccl.dictionary;
+
+import "buf/validate/validate.proto";
+import "ccl/metadata.proto";
+import "extension/dict.proto";
+
+service DictionaryService {
+    rpc GetDictionary(GetDictionaryRequest) returns (GetDictionaryResponse) {
+    }
+}
+
+message GetDictionaryRequest {
+    oneof filter {
+        string code = 1;
+        string id = 2;
+    }
+}
+
+message GetDictionaryResponse {
+//    option (ccl.dict) = {name: "获取字典响应"};
+//
+//    string name = 1 [(ccl.dict) = {name: "字典名称"}];
+//    repeated DictionaryItem items = 2 [(ccl
+}
+
+
+
+
+
+
+
+
+
+

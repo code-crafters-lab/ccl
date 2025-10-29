@@ -47,4 +47,5 @@ internal/protoc/protoc-gen-*/protoc-gen-*
 
 *.lic
 
-*.sql
+*.dict.sql
+*.dict.md
