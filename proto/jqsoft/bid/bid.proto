@@ -1,0 +1,56 @@
+edition = "2023";
+
+package bid;
+
+import "extension/dict.proto";
+
+option go_package = "github.com/code-crafters-lab/jqsoft/bid/pkg/grpc";
+option java_package = "net.jqsoft.cds.bid.enums";
+
+// 投标项目类型
+enum ProjectType {
+    option (ccl.dict) = {name: "投标项目类型"};
+
+    PROJECT_TYPE_UNSPECIFIED = 0 [(ccl.item) = {value: "UP", description: "用于无法匹配到项目类型的情况（如数据录入错误、新型项目未归类），需人工核实后调整"}];
+    PROJECT_TYPE_SOFTWARE = 1 [(ccl.item) = {name: "软件", value: "S"}];
+    PROJECT_TYPE_HARDWARE = 2 [(ccl.item) = {name: "硬件", value: "H"}];
+    PROJECT_TYPE_INTEGRATION = 3 [(ccl.item) = {name: "软硬件集成", value: "I"}];
+    PROJECT_TYPE_OPERATION_MAINTENANCE = 4 [(ccl.item) = {name: "运维服务", value: "OM"}];
+}
+
+// 招标采购方式
+enum ProcurementType {
+    option (ccl.dict) = {name: "招标采购方式"};
+
+    PROCUREMENT_TYPE_UNSPECIFIED = 0 [(ccl.item) = {value: "UT", description: "用于无法匹配到采购方式的情况（如数据录入错误、新型采购方式未归类），需人工核实后调整"}];
+    PROCUREMENT_TYPE_OPEN_TENDERING = 1 [(ccl.item) = {name: "公开招标", value: "OT"}];
+    PROCUREMENT_TYPE_INVITED_TENDERING = 2 [(ccl.item) = {name: "邀请招标", value: "IT"}];
+    PROCUREMENT_TYPE_COMPETITIVE_NEGOTIATION = 3 [(ccl.item) = {name: "竞争性谈判", value: "CN"}];
+    PROCUREMENT_TYPE_INQUIRY_PROCUREMENT = 4 [(ccl.item) = {name: "询价采购", value: "IP"}];
+    PROCUREMENT_TYPE_SINGLE_SOURCE_PROCUREMENT = 5 [(ccl.item) = {name: "单一来源采购", value: "SSP"}];
+    PROCUREMENT_TYPE_COMPETITIVE_CONSULTATION = 6 [(ccl.item) = {name: "竞争性磋商", value: "CC"}];
+    PROCUREMENT_TYPE_SELF_CONDUCTED_TENDERING = 7 [(ccl.item) = {name: "自行招标", value: "SCT"}];
+    PROCUREMENT_TYPE_COMPARATIVE_INQUIRY_PROCUREMENT = 8 [(ccl.item) = {name: "询比采购", value: "CIP"}];
+    PROCUREMENT_TYPE_HOSPITAL_INDEPENDENT_PROCUREMENT = 9 [(ccl.item) = {name: "医院自主采购", value: "HIP"}];
+    PROCUREMENT_TYPE_PRICE_COMPARISON = 10 [(ccl.item) = {name: "比价", value: "PC"}];
+    PROCUREMENT_TYPE_DIRECT_PROCUREMENT = 11 [(ccl.item) = {name: "直接采购", value: "DP"}];
+}
+
+// 投标支出费用类型
+enum ExpenseType {
+    option (ccl.dict) = {name: "投标支出费用类型"};
+
+    EXPENSE_TYPE_UNSPECIFIED = 0 [(ccl.item) = {name: "其他费用", value: "OE",description: "覆盖其他支出项（如标书快递费、远程开标网络费、印刷装订费等），需备注用途"}];
+    EXPENSE_TYPE_REGISTRATION_FEE = 1 [(ccl.item) = {name: "报名费", value: "RF"}];
+    EXPENSE_TYPE_TENDER_DOCUMENT_FEE = 2 [(ccl.item) = {name: "标书工本费", value: "DF"}];
+    EXPENSE_TYPE_CA_CERTIFICATE_FEE = 3 [(ccl.item) = {name: "CA费用", value: "CA"}];
+    EXPENSE_TYPE_EXPERT_FEE = 4 [(ccl.item) = {name: "专家评审费", value: "EF"}];
+    EXPENSE_TYPE_BID_SERVICE_FEE = 5 [(ccl.item) = {name: "中标服务费", value: "BS"}];
+    EXPENSE_TYPE_BID_BOND = 6 [(ccl.item) = {name: "投标保证金", value: "BB"}];
+    EXPENSE_TYPE_PERFORMANCE_BOND = 7 [(ccl.item) = {name: "履约保证金", value: "PB"}];
+    EXPENSE_TYPE_PAYMENT_GUARANTEE = 8 [(ccl.item) = {name: "预付保函", value: "PG", description: "仅用于审批流程开具预付款支付凭证，并非实际支出金额"}];
+}
+
+
+
+
