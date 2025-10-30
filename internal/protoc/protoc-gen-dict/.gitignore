@@ -1,3 +1,4 @@
 src
 *.dict.md
 *.dict.sql
+*.sql
