@@ -49,6 +49,7 @@ enum ExpenseType {
     EXPENSE_TYPE_BID_BOND = 6 [(ccl.item) = {name: "投标保证金", value: "BB"}];
     EXPENSE_TYPE_PERFORMANCE_BOND = 7 [(ccl.item) = {name: "履约保证金", value: "PB"}];
     EXPENSE_TYPE_PAYMENT_GUARANTEE = 8 [(ccl.item) = {name: "预付保函", value: "PG", description: "仅用于审批流程开具预付款支付凭证，并非实际支出金额"}];
+    EXPENSE_TYPE_ENTRY_BOND = 9 [(ccl.item) = {name: "入库保证金", value: "EB", description: "供应商/合作方进入采购方平台或机构 “合格供应商库” 时，按约定缴纳的履约保障资金"}];
 }
 
 
