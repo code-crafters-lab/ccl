@@ -105,8 +105,8 @@ func generate(plugin *protogen.Plugin, file *protogen.File, opts option) {
 
 	// 代码生成
 	generateMarkdown(dictionaries, plugin, file, opts)
-	//generateSQL(dictionaries, plugin, file, opts)
-	sqlGenerator(dictionaries, plugin, file, opts)
+	generateSQL(dictionaries, plugin, file, opts)
+	//sqlGenerator(dictionaries, plugin, file, opts)
 	generateJavaEnum(dictionaries, plugin, file, opts)
 }
 

@@ -65,23 +65,27 @@ func generateSQL(dictionaries []*dict, plugin *protogen.Plugin, file *protogen.F
 		g.P(fmt.Sprintf("-- %d. %s", i+1, dictionary.Name))
 		// 字典插入
 
-		g.P(fmt.Sprintf("INSERT INTO %s (id, code, name, value_type, description) VALUES (%s);", "sys_dict", resolveDictValues(*dictionary)))
+		//g.P(fmt.Sprintf("INSERT INTO %s (id, code, name, value_type, description) VALUES (%s);", "sys_dict", resolveDictValues(*dictionary)))
 		// 字典项插入
-		g.P(fmt.Sprintf("INSERT INTO %s (id, dict_id, code, name, value, sort, description)", "sys_dict_item"))
-		for j, item := range dictionary.Items {
-			var (
-				placeholder = "VALUES"
-				sep         = ","
-			)
-			if j > 0 {
-				placeholder = ""
-			}
-			if j == len(dictionary.Items)-1 {
-				sep = ";"
-			}
+		//g.P(fmt.Sprintf("INSERT INTO %s (id, dict_id, code, name, value, sort, description)", "sys_dict_item"))
+		//for j, item := range dictionary.Items {
+		//	var (
+		//		placeholder = "VALUES"
+		//		sep         = ","
+		//	)
+		//	if j > 0 {
+		//		placeholder = ""
+		//	}
+		//	if j == len(dictionary.Items)-1 {
+		//		sep = ";"
+		//	}
+		//
+		//	values := resolveItemValues(dictionary.ID, *item)
+		//	g.P(fmt.Sprintf("%6s (%s)%s", placeholder, values, sep))
+		//}
 
-			values := resolveItemValues(dictionary.ID, *item)
-			g.P(fmt.Sprintf("%6s (%s)%s", placeholder, values, sep))
+		for _, item := range dictionary.Items {
+			g.P("-- ", fmt.Sprintf("%s(%s)", item.Name, item.Value))
 		}
 	}
 }
