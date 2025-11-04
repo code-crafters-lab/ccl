@@ -1,0 +1,17 @@
+version: v2
+clean: true
+managed:
+  enabled: true
+plugins:
+  - local: [ "go", "run", "../../internal/protoc/protoc-gen-dict" ]
+    out: .out
+    opt:
+      - paths=source_relative
+      - java_enum_package=net.jqsoft.cds.bid.enums
+      - out_type=md|sql|java
+inputs:
+  - directory: ../../proto
+    exclude_paths:
+      - ../../proto/extension
+      - ../../proto/license
+      - ../../proto/ccl

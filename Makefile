@@ -46,6 +46,9 @@ core_api: extension_generator core_grpc_dependencies
 lint:
 	@buf lint proto
 
+jqsoft:
+	@make copy -C gen/jqsoft
+
 protoc:
 	@protoc -I resources \
     	--go_out . \
