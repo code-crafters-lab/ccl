@@ -54,9 +54,9 @@ func generateSQL(dictionaries []*dict, plugin *protogen.Plugin, file *protogen.F
 		return
 	}
 	filename := fmt.Sprintf("%s.dict.sql", file.GeneratedFilenamePrefix)
-	if opts.java {
-		filename = fmt.Sprintf("%s.dict.sql", path.Base(file.GeneratedFilenamePrefix))
-	}
+	//if opts.java {
+	//	filename = fmt.Sprintf("%s.dict.sql", path.Base(file.GeneratedFilenamePrefix))
+	//}
 	g := plugin.NewGeneratedFile(filename, file.GoImportPath)
 	generatePreamble(g, "-- ", file, plugin)
 

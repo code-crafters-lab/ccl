@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"path"
 
 	"google.golang.org/protobuf/compiler/protogen"
 )
@@ -14,9 +13,9 @@ func generateMarkdown(dictionaries []*dict, plugin *protogen.Plugin, file *proto
 		return
 	}
 	filename := fmt.Sprintf("%s.dict.md", file.GeneratedFilenamePrefix)
-	if opts.java {
-		filename = fmt.Sprintf("%s.dict.md", path.Base(file.GeneratedFilenamePrefix))
-	}
+	//if opts.java {
+	//	filename = fmt.Sprintf("%s.dict.md", path.Base(file.GeneratedFilenamePrefix))
+	//}
 	g := plugin.NewGeneratedFile(filename, file.GoImportPath)
 
 	buf := bytes.Buffer{}

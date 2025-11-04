@@ -127,7 +127,8 @@ func generateJavaEnum(dictionaries []*dict, plugin *protogen.Plugin, file *proto
 		if opts.javaEnumPackage != "" {
 			javaPackage = opts.javaEnumPackage
 		}
-		filename = fmt.Sprintf("src/main/java/%s/%s.java", strings.ReplaceAll(javaPackage, ".", "/"), dictionary.Code)
+		filename = fmt.Sprintf("%s/src/main/java/%s/%s.java", trimText(file.GeneratedFilenamePrefix),
+			strings.ReplaceAll(javaPackage, ".", "/"), dictionary.Code)
 		g := plugin.NewGeneratedFile(filename, file.GoImportPath)
 		g.P("package ", javaPackage, ";")
 		g.P()
@@ -176,6 +177,19 @@ func generateJavaEnum(dictionaries []*dict, plugin *protogen.Plugin, file *proto
 		g.P()
 		g.P("}")
 	}
+}
+
+func trimText(original string) string {
+	lastSlashIdx := strings.LastIndex(original, "/")
+	var result string
+	if lastSlashIdx == -1 {
+		// 没有"/"，直接返回原字符串
+		result = original
+	} else {
+		// 截取到最后一个"/"之前的内容
+		result = original[:lastSlashIdx]
+	}
+	return result
 }
 
 func collectEnums(msg *protogen.Message, enums *[]*protogen.Enum) {

@@ -4,11 +4,10 @@ clean: true
 managed:
   enabled: true
 plugins:
-  - local: [ "go", "run", "./internal/protoc/protoc-gen-dict/main.go" ]
+  - local: [ "go", "run", "./internal/protoc/protoc-gen-dict" ]
     out: .artifacts/grpc
     opt:
       - paths=source_relative
-      - java_enum_package=net.jqsoft.cds.bid.enums
       - out_type=md|sql
   - remote: buf.build/protocolbuffers/go:v1.36.9
     out: .artifacts/grpc
