@@ -7,6 +7,15 @@ import "extension/dict.proto";
 option go_package = "github.com/code-crafters-lab/jqsoft/bid/pkg/grpc";
 option java_package = "net.jqsoft.cds.bid.enums";
 
+// 项目来源
+enum ProjectSource {
+    option (ccl.dict) = {name: "项目来源"};
+
+    PROJECT_SOURCE_UNSPECIFIED = 0 [(ccl.item) = {description: "用于无法匹配的项目来源，需人工核实后调整"}];
+    PROJECT_SOURCE_BID_APPLY = 1 [(ccl.item) = {name: "投标申请", value: "BA"}];
+    PROJECT_SOURCE_SALSES_CONTRACT = 2 [(ccl.item) = {name: "销售合同", value: "SC"}];
+}
+
 // 投标项目类型
 enum ProjectType {
     option (ccl.dict) = {name: "投标项目类型"};
