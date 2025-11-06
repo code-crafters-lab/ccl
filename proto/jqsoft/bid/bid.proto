@@ -61,6 +61,23 @@ enum ExpenseType {
     EXPENSE_TYPE_ENTRY_BOND = 9 [(ccl.item) = {name: "入库保证金", value: "EB", description: "供应商/合作方进入采购方平台或机构 “合格供应商库” 时，按约定缴纳的履约保障资金"}];
 }
 
+// 投标状态
+enum BidStatus {
+    option (ccl.dict) = {name: "投标状态"};
+
+    BID_STATUS_UNSPECIFIED = 0 [(ccl.item) = {name: "-", description: "默认状态"}];
+
+    BID_STATUS_REGISTRATION_PENDING = 1 [(ccl.item) = {name: "待报名", value: "RP", description: "尚未提交任何报名资料"}];
+    BID_STATUS_REGISTRATION_OPEN = 2 [(ccl.item) = {name: "报名中", value: "RO", description: "已提交报名资料，等待审核"}];
+    BID_STATUS_REGISTRATION_SUCCESS = 3 [(ccl.item) = {name: "报名成功", value: "RS", description: "资料审核通过，可获取招标文件"}];
+    BID_STATUS_REGISTRATION_FAILED = 4 [(ccl.item) = {name: "报名失败", value: "RF", description: "因资质不符等原因被拒绝，无法参与投标"}];
+    BID_STATUS_DOC_PREPARING = 5 [(ccl.item) = {name: "标书编制中", value: "DP", description: "正在组织团队编写、审核投标文件"}];
+    BID_STATUS_BIDDING = 6 [(ccl.item) = {name: "投标中", value: "B", description: "已提交投标文件，等待评标结果"}];
+    BID_STATUS_WON = 7 [(ccl.item) = {name: "已中标", value: "W", description: "投标成功，评标结束，收到中标通知书"}];
+    BID_STATUS_LOST = 8 [(ccl.item) = {name: "未中标", value: "L",description: "投标失败，评标结束，确认未中标"}];
+    BID_STATUS_FAILED = 9 [(ccl.item) = {name: "流标", value: "F", description: "因有效投标人不足、招标方终止等原因，招标失败"}];
+}
+
 
 
 

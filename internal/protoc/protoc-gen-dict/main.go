@@ -20,11 +20,11 @@ import (
 )
 
 const (
-	name       = "dict"
-	pluginName = "protoc-gen-" + name
-	version    = "0.1.0"
-
-	usage = "learn how to use this plugin.\n\nFlags:\n  -h, --help\tPrint this help and exit.\n      --version\tPrint the version and exit."
+	name                   = "dict"
+	pluginName             = "protoc-gen-" + name
+	version                = "0.1.0"
+	defaultUnspecifiedName = "其他"
+	usage                  = "learn how to use this plugin.\n\nFlags:\n  -h, --help\tPrint this help and exit.\n      --version\tPrint the version and exit."
 )
 
 type option struct {
@@ -292,7 +292,7 @@ func ofDict(enumDesc protoreflect.EnumDescriptor) *dict {
 	// 字典唯一 id 生成
 	d.ID = strToNumFNV64(d.FullCode)
 	// 字典项数据
-	items := ofDictItems(enumDesc, d.ID, "其他（默认值）")
+	items := ofDictItems(enumDesc, d.ID, defaultUnspecifiedName)
 	// 字典值类型
 	d.ValueType = valueTypeOf(items)
 	d.Items = items

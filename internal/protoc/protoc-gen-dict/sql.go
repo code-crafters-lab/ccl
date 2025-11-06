@@ -53,7 +53,7 @@ func generateSQL(dictionaries []*dict, plugin *protogen.Plugin, file *protogen.F
 	if !opts.sql {
 		return
 	}
-	filename := fmt.Sprintf("%s.dict.sql", file.GeneratedFilenamePrefix)
+	filename := fmt.Sprintf("%s.dict.help.sql", file.GeneratedFilenamePrefix)
 	//if opts.java {
 	//	filename = fmt.Sprintf("%s.dict.sql", path.Base(file.GeneratedFilenamePrefix))
 	//}
@@ -62,31 +62,44 @@ func generateSQL(dictionaries []*dict, plugin *protogen.Plugin, file *protogen.F
 
 	for i, dictionary := range dictionaries {
 		g.P()
-		g.P(fmt.Sprintf("-- %d. %s", i+1, dictionary.Name))
-		// 字典插入
 
-		//g.P(fmt.Sprintf("INSERT INTO %s (id, code, name, value_type, description) VALUES (%s);", "sys_dict", resolveDictValues(*dictionary)))
-		// 字典项插入
-		//g.P(fmt.Sprintf("INSERT INTO %s (id, dict_id, code, name, value, sort, description)", "sys_dict_item"))
-		//for j, item := range dictionary.Items {
-		//	var (
-		//		placeholder = "VALUES"
-		//		sep         = ","
-		//	)
-		//	if j > 0 {
-		//		placeholder = ""
-		//	}
-		//	if j == len(dictionary.Items)-1 {
-		//		sep = ";"
-		//	}
-		//
-		//	values := resolveItemValues(dictionary.ID, *item)
-		//	g.P(fmt.Sprintf("%6s (%s)%s", placeholder, values, sep))
-		//}
-
+		// 备注
+		var (
+			zeroItem   *dictItem
+			result     []string
+			value2name []string
+			values     []string
+		)
 		for _, item := range dictionary.Items {
-			g.P("-- ", fmt.Sprintf("%s(%s)", item.Name, item.Value))
+			if item.IsZero() {
+				zeroItem = item
+				continue
+			}
+			result = append(result, fmt.Sprintf("%s:%s", item.Value, item.Name))
+			if dictionary.ValueType == ValueTypeNumber {
+				value2name = append(value2name, fmt.Sprintf(`when %s then '%s'`, item.Value, item.Name))
+			} else {
+				value2name = append(value2name, fmt.Sprintf(`when '%s' then '%s'`, item.Value, item.Name))
+			}
+			values = append(values, fmt.Sprintf(`"%s"`, item.Value))
 		}
+		if zeroItem != nil {
+			result = append(result, fmt.Sprintf("%s:%s", zeroItem.Value, zeroItem.Name))
+			if dictionary.ValueType == ValueTypeNumber {
+				value2name = append(value2name, fmt.Sprintf(`else %s`, zeroItem.Value))
+			} else {
+				value2name = append(value2name, fmt.Sprintf(`else '%s'`, zeroItem.Name))
+			}
+			values = append(values, fmt.Sprintf(`"%s"`, zeroItem.Value))
+		}
+		g.P(fmt.Sprintf("-- %d. %s %s", i+1, dictionary.Name, strings.Join(result, " ")))
+		g.P(fmt.Sprintf("-- enum values: %s", strings.Join(values, ",")))
+		g.P("select")
+		g.P(fmt.Sprintf(`case '%s'`, dictionary.Code))
+		g.P(strings.Join(value2name, "\n"))
+		g.P("end")
+		g.P("from dual;")
+
 	}
 }
 
