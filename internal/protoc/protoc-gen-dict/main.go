@@ -118,19 +118,27 @@ func generateJavaEnum(dictionaries []*dict, plugin *protogen.Plugin, file *proto
 	for _, dictionary := range dictionaries {
 		options := file.Proto.GetOptions()
 		var (
-			javaPackage string
-			filename    string
+			javaPackage     string
+			javaEnumPackage string
+			filename        string
 		)
-		if options.JavaPackage != nil && *options.JavaPackage != "" {
-			javaPackage = *options.JavaPackage
+
+		javaPackage = options.GetJavaPackage()
+		if strings.HasSuffix(javaPackage, ".enums") {
+			javaEnumPackage = javaPackage
+		} else if javaPackage != "" {
+			javaEnumPackage = fmt.Sprintf("%s.enums", javaPackage)
 		}
+
+		// 自定义参数
 		if opts.javaEnumPackage != "" {
-			javaPackage = opts.javaEnumPackage
+			javaEnumPackage = opts.javaEnumPackage
 		}
+
 		filename = fmt.Sprintf("%s/src/main/java/%s/%s.java", trimText(file.GeneratedFilenamePrefix),
-			strings.ReplaceAll(javaPackage, ".", "/"), dictionary.Code)
+			strings.ReplaceAll(javaEnumPackage, ".", "/"), dictionary.Code)
 		g := plugin.NewGeneratedFile(filename, file.GoImportPath)
-		g.P("package ", javaPackage, ";")
+		g.P("package ", javaEnumPackage, ";")
 		g.P()
 		imports := []string{"lombok.AllArgsConstructor", "lombok.Getter", "org.codecrafterslab.unity.dict.api.EnumDictItem"}
 		for _, i := range imports {

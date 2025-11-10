@@ -2,13 +2,20 @@ version: v2
 clean: true
 managed:
   enabled: true
+  override:
+    - file_option: java_package_prefix
+      value: net
+    - file_option: java_package
+      path: jqsoft/bid/bid.proto
+      value: net.jqsoft.cds.bid
 plugins:
   - local: [ "go", "run", "../../internal/protoc/protoc-gen-dict" ]
     out: .out
     opt:
       - paths=source_relative
-      - java_enum_package=net.jqsoft.cds.bid.enums
       - out_type=md|sql|java
+#  - remote: buf.build/protocolbuffers/java:v33.0
+#    out: .java
 inputs:
   - directory: ../../proto
     exclude_paths:
