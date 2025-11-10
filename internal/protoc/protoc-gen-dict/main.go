@@ -11,7 +11,9 @@ import (
 	"unicode"
 
 	"connectrpc.com/connect"
+	"github.com/code-crafters-lab/ccl/internal/protoc/protoc-gen-dict/service"
 	"github.com/code-crafters-lab/ccl/pkg/extension"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -75,11 +77,26 @@ func main() {
 				if file.Generate {
 					opts.phrase()
 					generate(plugin, file, opts)
+					generateService(plugin, file, opts)
 				}
 			}
 			return nil
 		},
 	)
+}
+
+func generateService(plugin *protogen.Plugin, file *protogen.File, o option) {
+	metas := make([]*service.Meta, 0)
+	for _, svc := range file.Services {
+		sMeta := service.NewMeta(svc, file)
+		metas = append(metas, sMeta)
+	}
+	for _, meta := range metas {
+		err := service.GenerateJavaCode(meta, ".")
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func generate(plugin *protogen.Plugin, file *protogen.File, opts option) {

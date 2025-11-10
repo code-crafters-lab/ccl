@@ -1,0 +1,133 @@
+edition = "2023";
+
+package jqsoft.bid;
+
+import "google/api/annotations.proto";
+import "jqsoft/bid/bid.proto";
+
+option go_package = "github.com/code-crafters-lab/jqsoft/bid/pkg/grpc";
+option java_package = "net.jqsoft.cds.bid";
+option java_multiple_files = true;
+option java_outer_classname = "BidServiceProto";
+
+service BidService {
+
+    // 获取投标信息
+    rpc GetBidInfo (BidInfoRequest) returns (BidInfoResponse) {
+        option deprecated = true;
+        option (google.api.http) = {
+            get: "/v1/bid/info"
+        };
+    }
+
+    // 获取费用支出汇总
+    rpc GetBidExpenseSummary (BidExpenseRequest) returns (BidExpenseResponse) {
+        option (google.api.http) = {
+            get: "/v1/bid/expense/summary"
+        };
+    }
+
+}
+
+message BidInfoRequest {
+    // 投标状态
+    BidStatus bid_status = 1;
+    // 中标时间范围
+    TimeRange bid_date = 2;
+    // 项目名称
+    string project_like_name = 3;
+}
+
+message BidInfoResponse {
+    uint32 total = 1;
+    repeated BidExpense data = 2;
+}
+
+message TimeRange {
+    // 时间范围类型
+    Type range_type = 1;
+    // 开始时间
+    string start_time = 2;
+    // 结束时间
+    string end_time = 3;
+
+    enum Type {
+        // 按天
+        DAY = 0;
+        // 按月
+        MONTH = 1;
+        // 按年
+        YEAR = 2;
+    }
+}
+
+message BidExpenseRequest {
+    TimeRange created_time = 1;
+    TimeRange payment_time = 2;
+    repeated string department_code = 3;
+    string project_like_name = 4;
+}
+
+message BidExpenseResponse {
+    uint32 total = 1;
+    repeated BidExpense data = 2;
+}
+
+message BidExpense {
+    // 日期
+    string date = 1;
+    // 项目信息
+    BidProject project = 2;
+    // 费用合计
+    double total_amount = 3;
+    // 其他费用
+    double unspecified = 10;
+    // 报名费
+    double registration_fee = 11;
+    // 标书工本费
+    double tender_document_fee = 12;
+    // CA费用
+    double ca_certificate_fee = 13;
+    // 专家评审费
+    double expert_fee = 14;
+    // 中标服务费
+    double bid_service_fee = 15;
+    // 投标保证金
+    double bid_bond = 16;
+    // 履约保证金
+    double performance_bond = 17;
+    // 预付保函
+    double payment_guarantee = 18;
+    // 入库保证金
+    double entry_bond = 19;
+
+    reserved 4 to 9;
+}
+
+message BidProject {
+    // 项目ID
+    string id = 1;
+    // 项目名称
+    string name = 2;
+    // 项目编码
+    string code = 3;
+    // 项目类型
+    string type = 4;
+    // 项目来源
+    string source = 5;
+    // 部门名称
+    string department_name = 6;
+    // 部门编码
+    string department_code = 7;
+    // 商务代表名称
+    string biz_rep_name = 8;
+    // 商务代表工号
+    string biz_rep_no = 9;
+    // 项目备注
+    string remark = 10;
+}
+
+
+
+
+
