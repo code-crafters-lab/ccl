@@ -86,6 +86,11 @@ func main() {
 }
 
 func generateService(plugin *protogen.Plugin, file *protogen.File, o option) {
+	// entities
+	//for _, svc := range file.Messages {
+	//
+	//}
+
 	metas := make([]*service.Meta, 0)
 	for _, svc := range file.Services {
 		sMeta := service.NewMeta(svc, file)

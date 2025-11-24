@@ -26,6 +26,13 @@ type MethodMeta struct {
 	Url          string // HTTP URL（如 /user/{id}）
 }
 
+type EntityMeta struct {
+	ProtoPackage string // proto 文件中的 package
+	JavaPackage  string // 生成 Java 代码的包名（如 com.example.entity）
+	ClassName    string // 类名（如 User）
+
+}
+
 func NewMeta(service *protogen.Service, file *protogen.File) *Meta {
 	fileOptions := file.Proto.GetOptions()
 	meta := &Meta{
