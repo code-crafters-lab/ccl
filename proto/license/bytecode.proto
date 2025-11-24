@@ -8,17 +8,96 @@ option objc_class_prefix = "LicenseBytecode";
 
 package license;
 
+import "extension/dict.proto";
 import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+// 许可证类型
+enum LicenseType {
+    option (ccl.dict) = {name: "许可证类型"};
+
+    LICENSE_TYPE_UNSPECIFIED = 0 [(ccl.item) = {}];
+    LICENSE_TYPE_INDIVIDUAL = 1 [(ccl.item) = {value: "IND", name: "个人版", description: "面向个人用户，功能有限"}];
+    LICENSE_TYPE_STANDARD = 2 [(ccl.item) = {value: "SE", name: "标准版", description: "基础商业版本，包含核心功能"}];
+    LICENSE_TYPE_PROFESSIONAL = 3 [(ccl.item) = {value: "PRO", name: "专业版", description: "面向专业用户，提供高级功能"}];
+    LICENSE_TYPE_ENTERPRISE = 4 [(ccl.item) = {value: "EE", name: "企业版", description: "面向企业用户，支持多用户和高级管理功能"}];
+    LICENSE_TYPE_CUSTOM = 5 [(ccl.item) = {value: "CE", name: "定制版", description: "根据特定需求定制的版本"}];
+}
+
+//  授权模式	        技术方案	                                    适用场景
+//  云许可	        微服务架构 + Redis 缓存 + MySQL 存储	        企业 SaaS、在线办公软件、多终端共享授权
+//  软许可	        设备指纹（CPU / 主板 / 硬盘哈希）+AES 加密	    单机离线软件、轻量化终端（PC / 移动端）
+//  硬件加密许可	    USB 加密狗（内置智能卡芯片）+SM4 加密	        高安全需求场景（工业软件、专业工具）
+//  区块链许可	    智能合约（ERC721/ERC1155）+ 链上存证	        数字资产授权、去中心化许可管理
+enum LicenseMode {
+    option (ccl.dict) = {name: "许可证模式"};
+
+    LICENSE_MODE_UNSPECIFIED = 0;
+    LICENSE_MODE_CLOUD = 1 [(ccl.item) = {value: "CLOUD", name: "云许可", description: "基于云服务的许可证模式"}];
+    LICENSE_MODE_SOFTWARE = 2 [(ccl.item) = {value: "SOFTWARE", name: "软许可", description: "基于本地软件的许可证模式"}];
+    LICENSE_MODE_HARDWARE = 3 [(ccl.item) = {value: "HARDWARE", name: "硬件加密许可", description: "基于硬件设备的许可证模式"}];
+    LICENSE_MODE_BLOCKCHAIN = 4 [(ccl.item) = {value: "BLOCKCHAIN", name: "区块链许可", description: "基于区块链技术的许可证模式"}];
+
+}
+
+// ------------------------------
+// 云许可 (Cloud License) 相关定义
+// ------------------------------
+message CloudLicenseSpec {
+    // 用户标识
+    string user_id = 1;
+}
+
+// ------------------------------
+// 软许可 (Software License) 相关定义
+// ------------------------------
+message SoftwareLicenseSpec {
+    // 设备指纹 (CPU/主板/硬盘哈希)   
+    repeated string device_fingerprint = 1;
+    // 最多绑定设备数（0 表示不限制）
+    uint32 max_device_count = 2 [default = 5];
+    // 使用公钥加密后的AES密钥
+    bytes encrypted_aes_key = 3;
+}
+
+// ------------------------------
+// 硬件加密许可 (Hardware License) 相关定义
+// ------------------------------
+message HardwareLicenseSpec {
+    // USB加密狗的唯一序列号
+    string usb_dongle_serial = 1;
+    // 使用SM4加密的授权数据   
+    bytes sm4_encrypted_data = 2;
+}
+
+// ------------------------------
+// 区块链许可 (Blockchain License) 相关定义
+// ------------------------------
+message BlockchainLicenseSpec {
+    // 智能合约地址
+    string contract_address = 1;
+    // 对应ERC721/ERC1155的Token ID
+    string token_id = 2;
+    // 链ID (例如: Ethereum Mainnet -> 1)
+    string chain_id = 3;
+}
 
 // 文件头结构(固定位 20 字节)
-message LicenseHeader {
-    bytes magic_number = 1;             // 标识文件类型（4字节），固定为 0xCC4C9A9B
-    uint32 minor_version = 2;           // 次要版本号，无符号 8 位整数
-    uint32 major_version = 3;           // 主要版本号，无符号 8 位整数
-    uint32 constant_pool_count = 4;     // 常量池计数，无符号 16 位整数
-    uint32 payload_offset = 5;          // 授权信息块偏移，无符号 32 位整数
-    uint32 security_offset = 6;         // 安全块偏移，无符号 32 位整数
-    uint32 total_length = 7;            // 文件总长度，无符号 32 位整数
+message LicenseHeader   {
+    // 标识文件类型（4 字节），固定为 0xCC4C9A9B
+    fixed32 magic_number = 1;
+    // 次要版本号（1 字节，8 位无符号整数）
+    uint32 minor_version = 2;
+    // 主要版本号（1 字节，8 位无符号整数）
+    uint32 major_version = 3;
+    // 常量池计数（2 字节，16 位无符号整数）
+    uint32 constant_pool_count = 4;
+    // 授权信息块偏移（4 字节，32 位无符号整数）
+    uint32 payload_offset = 5;
+    // 安全块偏移（4 字节，32 位无符号整数）
+    uint32 security_offset = 6;
+    // 文件总长度（4 字节，32 位无符号整数）
+    uint32 total_length = 7;
     reserved 8 to 10;
 }
 
@@ -31,92 +110,112 @@ message ConstantPoolItem {
         CONSTANT_LONG = 3;
         CONSTANT_FLOAT = 4;
         CONSTANT_DOUBLE = 5;
+        CONSTANT_FEATURE = 6;
+        CONSTANT_BYTE_ARRAY = 7;
     }
     ConstantType tag = 1;
-    bytes data = 2;
+    uint32 length = 2;
+    bytes data = 3;
+}
+
+// 功能点信息
+message FunctionPoint {
+    // 功能点位掩码（对应二进制位的索引,不允许重复（从 0 开始，如 0 → 第0位 → 2^0=1））
+    uint64 bit_mask = 1;
+    // 功能点名称
+    string name = 2;
+    // 功能点描述
+    string description = 3;
+    // 功能点排序
+    int64 sort = 4;
+    // 功能点层级分组（如 "security", "network"）
+    repeated string group = 5;
+}
+
+// 扩展块
+message ExtensionBlock {
+    uint32 extension_type = 1;
+    uint32 extension_data_length = 2;
+    bytes extension_data = 3;
 }
 
 // 授权内容
 message LicensePayload {
-    string license_id = 1;           // 授权ID（UUID或自定义格式）
-    string product_id = 2;          // 产品标识
-    LicenseType license_type = 3 [default = LICENSE_TYPE_PERSONAL];   // 授权类型
-    uint64 expiry_time = 4;         // 过期时间（Unix时间戳）
-    repeated bytes hardware_fingerprint = 5; // 硬件指纹（用于设备绑定）
-
-    // 功能模块控制（兼容32位和扩展格式）
-    oneof feature_control {
-        uint32 feature_mask_32 = 6;   // 32位功能掩码
-        uint64 feature_mask_64 = 7;   // 64位功能掩码
-        FeatureRegistry feature_registry = 8; // 新版功能注册表
-    }
-
-    reserved 9, 10;
-
+    // 许可证唯一ID（UUID或自定义格式）
+    string license_id = 1;
+    // 产品标识
+    string product_id = 2;
+    // 授权许可模式
+    LicenseMode license_mode = 3 [default = LICENSE_MODE_SOFTWARE];
+    // 许可类型
+    LicenseType license_type = 4 [default = LICENSE_TYPE_INDIVIDUAL];
+    // 颁发时间
+    google.protobuf.Timestamp issued_at = 5;
+    // 过期时间
+    google.protobuf.Timestamp expired_at = 6;
+    // 授权功能列表
+    repeated FunctionPoint functions = 7;
     // 附加信息（键值对）
-    map<string, string> extra_info = 11;
-}
-
-// 授权类型枚举
-enum LicenseType {
-    // 未指定类型
-    LICENSE_TYPE_UNSPECIFIED = 0;
-    // 个人版：面向个人用户，功能有限
-    LICENSE_TYPE_PERSONAL = 1;
-    // 标准版(SE)：基础商业版本，包含核心功能
-    LICENSE_TYPE_STANDARD = 2;
-    // 专业版(PE)：面向专业用户，提供高级功能
-    LICENSE_TYPE_PROFESSIONAL = 3;
-    // 企业版(EE)：面向企业用户，支持多用户和高级管理功能
-    LICENSE_TYPE_ENTERPRISE = 4;
-    // 定制版：根据特定需求定制的版本
-    LICENSE_TYPE_CUSTOM = 5;
+    map<string, google.protobuf.Any> extra_info = 8;
+    // 扩展字段（使用Google的Any类型）
+    repeated google.protobuf.Any extensions = 9;
+    // 使用 one of 来包含特定于授权模式的信息
+    oneof spec {
+        CloudLicenseSpec cloud_spec = 10;
+        SoftwareLicenseSpec software_spec = 11;
+        HardwareLicenseSpec hardware_spec = 12;
+        BlockchainLicenseSpec blockchain_spec = 13;
+    }
 }
 
 // 签名信息
 message LicenseSignature {
-    SignatureAlgorithm algorithm = 1; // 签名算法
-    bytes signature = 2;              // 签名值
-    bytes public_key = 3;             // 公钥（可选）
+    // 签名算法
+    SignatureAlgorithm algorithm = 1;
+    // 签名值
+    bytes signature = 2;
+    // 公钥（可选）
+    bytes public_key = 3;
+}
+
+// 签名算法
+enum SignatureAlgorithm {
+    SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
+    // SM2-SM3
+    SIGNATURE_ALGORITHM_SM2_SM3 = 1;
+    // HMAC-SHA256
+    SIGNATURE_ALGORITHM_HMAC_SHA256 = 2;
+    // RSA-SHA256
+    SIGNATURE_ALGORITHM_RSA_SHA256 = 3;
+    // ECDSA-P256
+    SIGNATURE_ALGORITHM_ECDSA_P256 = 4;
 }
 
 // 安全块
 message SecurityBlock {
-    uint32 signature_algorithm = 1;
+    // 签名算法
+    string signature_algorithm_id = 1;
+    // 签名长度
     uint32 signature_length = 2;
+    // 签名值
     bytes signature_data = 3;
-    uint32 encryption_algorithm_id = 4;
+
+    // 加密算法
+    string encryption_algorithm_id = 4;
+    // 加密长度
     uint32 encrypted_data_length = 5;
+    // 加密数据
     bytes encrypted_data = 6;
 }
 
-// 签名算法枚举
-enum SignatureAlgorithm {
-    SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
-    SIGNATURE_ALGORITHM_RSA_SHA256 = 1;   // RSA-SHA256
-    SIGNATURE_ALGORITHM_ECDSA_P256 = 3;   // ECDSA-P256
-    SIGNATURE_ALGORITHM_HMAC_SHA256 = 4;  // HMAC-SHA256
-}
-
-// 完整授权文件结构
+// 许可证文件结构
 message LicenseFile {
-    LicenseHeader header = 1;                       // 文件头
-    repeated ConstantPoolItem constant_pool = 2;    // 常量池
-    LicensePayload payload = 3;                     // 授权内容
-    LicenseSignature signature = 4;                 // 签名信息
-    repeated google.protobuf.Any extensions = 5;    // 扩展字段（使用Google的Any类型）
-}
-
-// 功能点信息
-message FeatureInfo {
-    uint64 mask = 1;            // 功能点掩码（64位，解决32位不足问题）
-    string name = 2;            // 功能点名称（唯一标识）
-    string description = 3;     // 功能点描述
-    repeated string group = 4;  // 功能点分组（如 "security", "network"）
-}
-
-// 功能点注册表
-message FeatureRegistry {
-    uint32 version = 1;        // 版本号（用于兼容性管理）
-    repeated FeatureInfo features = 2; // 功能点列表
+    // 文件头
+    LicenseHeader header = 1;
+    // 常量池
+    repeated ConstantPoolItem constant_pool = 2;
+    // 授权内容
+    LicensePayload payload = 3;
+    // 签名信息
+    LicenseSignature signature = 4;
 }
