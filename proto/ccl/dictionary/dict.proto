@@ -9,7 +9,7 @@ import "ccl/metadata.proto";
 import "extension/dict.proto";
 
 enum Status {
-    option (ccl.dict) = {name: "应用状态"};
+    option (ccl.dict) = {name: "字典状态"};
 
     STATUS_UNSPECIFIED = 0;
     STATUS_ACTIVE = 1 [(ccl.item) = {name: "启用"}];
