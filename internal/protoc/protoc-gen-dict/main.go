@@ -77,7 +77,7 @@ func main() {
 				if file.Generate {
 					opts.phrase()
 					generate(plugin, file, opts)
-					generateService(plugin, file, opts)
+					//generateService(plugin, file, opts)
 				}
 			}
 			return nil
