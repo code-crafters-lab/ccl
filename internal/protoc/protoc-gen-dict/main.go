@@ -122,7 +122,9 @@ func generate(plugin *protogen.Plugin, file *protogen.File, opts option) {
 
 	dictionaries := make([]*dict, 0)
 	for _, enum := range enums {
-		dictionaries = append(dictionaries, ofDict(enum.Desc))
+		if d := ofDict(enum.Desc); d != nil {
+			dictionaries = append(dictionaries, d)
+		}
 	}
 
 	// 代码生成
@@ -302,22 +304,24 @@ func (i dictItem) IsZero() bool {
 }
 
 func ofDict(enumDesc protoreflect.EnumDescriptor) *dict {
+	// 1. 读取 enum 级别（EnumOptions）的扩展
+	enumOptions := enumDesc.Options()
+	// 不存在扩展选项直接返回 nil
+	if !proto.HasExtension(enumOptions, extension.E_Dict) {
+		return nil
+	}
 	d := &dict{
 		ValueType: ValueTypeNumber,
 		Code:      string(enumDesc.Name()),
 		FullCode:  string(enumDesc.FullName()),
 	}
-	// 2. 读取 enum 级别（EnumOptions）的扩展
-	enumOptions := enumDesc.Options()
-	if proto.HasExtension(enumOptions, extension.E_Dict) {
-		ext := proto.GetExtension(enumOptions, extension.E_Dict)
-		metadata := ext.(*extension.DictExtensionMetadata)
-		if metadata.Name != nil {
-			d.Name = *metadata.Name
-		}
-		if metadata.Description != nil {
-			d.Description = *metadata.Description
-		}
+	ext := proto.GetExtension(enumOptions, extension.E_Dict)
+	metadata := ext.(*extension.DictExtensionMetadata)
+	if metadata.Name != nil {
+		d.Name = *metadata.Name
+	}
+	if metadata.Description != nil {
+		d.Description = *metadata.Description
 	}
 	// 字典唯一 id 生成
 	d.ID = strToNumFNV64(d.FullCode)

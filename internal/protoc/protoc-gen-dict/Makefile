@@ -10,4 +10,4 @@ debug: build
 		-I ~/.cache/buf/v3/modules/b5/buf.build/googleapis/googleapis/61b203b9a9164be9a834f58c37be6f62/files \
 		--dict_opt module=github.com/code-crafters-lab/ccl/pkg/grpc --dict_out .out \
 		--dict_opt out_type="md" \
-		$(PROTO_BASE)/ccl/resources/*.proto
+		$(PROTO_BASE)/ccl/license/*.proto
