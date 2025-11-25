@@ -1,5 +1,5 @@
 version: v2
-# 请勿轻言使用，输出目录含义其他代码也会被删除
+# 请勿轻易使用，输出目录若含有其他代码也会被删除
 #clean: true
 managed:
   enabled: true
