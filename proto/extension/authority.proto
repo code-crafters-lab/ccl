@@ -20,7 +20,6 @@ message AuthorityExtensionMetadata {
     string hex_value = 5;
 }
 
-
 extend google.protobuf.MethodOptions {
     // 权限控制
     AuthorityExtensionMetadata authority = 1001;

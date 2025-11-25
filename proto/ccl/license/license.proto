@@ -1,14 +1,21 @@
 edition = "2023";
 
-package authorization;
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/license";
 
-/* 注册文件信息 */
+package ccl.license;
+
+// 注册文件信息
 message Registration {
     message Information {
+        // 机器码
         string machine_code = 1 [json_name = "machinecode"];
+        // MAC 地址
         string mac_address = 2 [json_name = "macaddress"];
+        // 应用名称
         string app_name = 3 [json_name = "appname"];
+        // 应用版本
         string version = 4 [json_name = "version"];
+        // 厂商名称
         string vendor = 5 [json_name = "vendor"];
     }
 

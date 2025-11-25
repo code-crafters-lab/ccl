@@ -7,8 +7,8 @@ plugins:
   - local: [ "go", "run", "./internal/protoc/protoc-gen-dict" ]
     out: .artifacts/grpc
     opt:
-      - paths=source_relative
-      - out_type=md|sql
+      - module=github.com/code-crafters-lab/ccl/pkg/grpc
+      - out_type=md
   - remote: buf.build/protocolbuffers/go:v1.36.9
     out: .artifacts/grpc
     opt:
@@ -31,5 +31,4 @@ inputs:
   - directory: proto
     exclude_paths:
       - proto/extension
-      - proto/license
       - proto/jqsoft

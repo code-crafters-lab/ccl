@@ -1,12 +1,12 @@
 edition = "2023";
 
-option go_package = "github.com/code-crafters-lab/idl/license";
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/license";
 option java_package = "org.ccl.license";
 option java_outer_classname = "LicenseBytecodeProto";
 option java_multiple_files = true;
 option objc_class_prefix = "LicenseBytecode";
 
-package license;
+package ccl.license;
 
 import "extension/dict.proto";
 import "google/protobuf/any.proto";
@@ -33,10 +33,10 @@ enum LicenseMode {
     option (ccl.dict) = {name: "许可证模式"};
 
     LICENSE_MODE_UNSPECIFIED = 0;
-    LICENSE_MODE_CLOUD = 1 [(ccl.item) = {value: "CLOUD", name: "云许可", description: "基于云服务的许可证模式"}];
-    LICENSE_MODE_SOFTWARE = 2 [(ccl.item) = {value: "SOFTWARE", name: "软许可", description: "基于本地软件的许可证模式"}];
-    LICENSE_MODE_HARDWARE = 3 [(ccl.item) = {value: "HARDWARE", name: "硬件加密许可", description: "基于硬件设备的许可证模式"}];
-    LICENSE_MODE_BLOCKCHAIN = 4 [(ccl.item) = {value: "BLOCKCHAIN", name: "区块链许可", description: "基于区块链技术的许可证模式"}];
+    LICENSE_MODE_CLOUD = 1 [(ccl.item) = {value: "C", name: "云许可", description: "基于云服务的许可证模式"}];
+    LICENSE_MODE_SOFTWARE = 2 [(ccl.item) = {value: "S", name: "软许可", description: "基于本地软件的许可证模式"}];
+    LICENSE_MODE_HARDWARE = 3 [(ccl.item) = {value: "H", name: "硬件加密许可", description: "基于硬件设备的许可证模式"}];
+    LICENSE_MODE_BLOCKCHAIN = 4 [(ccl.item) = {value: "BC", name: "区块链许可", description: "基于区块链技术的许可证模式"}];
 
 }
 
