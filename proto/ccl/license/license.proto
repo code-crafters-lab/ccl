@@ -1,67 +1,172 @@
 edition = "2023";
 
 option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/license";
+option java_package = "org.ccl.license";
+option java_outer_classname = "LicenseBytecodeProto";
+option java_multiple_files = true;
+option objc_class_prefix = "LicenseBytecode";
 
 package ccl.license;
 
-// 注册文件信息
-message Registration {
-    message Information {
-        // 机器码
-        string machine_code = 1 [json_name = "machinecode"];
-        // MAC 地址
-        string mac_address = 2 [json_name = "macaddress"];
-        // 应用名称
-        string app_name = 3 [json_name = "appname"];
-        // 应用版本
-        string version = 4 [json_name = "version"];
-        // 厂商名称
-        string vendor = 5 [json_name = "vendor"];
+import "extension/dict.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+// 许可证类型
+enum Type {
+    option (ccl.dict) = {name: "许可证类型"};
+
+    TYPE_UNSPECIFIED = 0 [(ccl.item) = {}];
+    TYPE_INDIVIDUAL = 1 [(ccl.item) = {value: "IND", name: "个人版", description: "面向个人用户，功能有限"}];
+    TYPE_STANDARD = 2 [(ccl.item) = {value: "SE", name: "标准版", description: "基础商业版本，包含核心功能"}];
+    TYPE_PROFESSIONAL = 3 [(ccl.item) = {value: "PRO", name: "专业版", description: "面向专业用户，提供高级功能"}];
+    TYPE_ENTERPRISE = 4 [(ccl.item) = {value: "EE", name: "企业版", description: "面向企业用户，支持多用户和高级管理功能"}];
+    TYPE_CUSTOM = 5 [(ccl.item) = {value: "CE", name: "定制版", description: "根据特定需求定制的版本"}];
+}
+
+//  授权模式	        技术方案	                                    适用场景
+//  云许可	        微服务架构 + Redis 缓存 + MySQL 存储	        企业 SaaS、在线办公软件、多终端共享授权
+//  软许可	        设备指纹（CPU / 主板 / 硬盘哈希）+AES 加密	    单机离线软件、轻量化终端（PC / 移动端）
+//  硬件加密许可	    USB 加密狗（内置智能卡芯片）+SM4 加密	        高安全需求场景（工业软件、专业工具）
+//  区块链许可	    智能合约（ERC721/ERC1155）+ 链上存证	        数字资产授权、去中心化许可管理
+enum Mode {
+    option (ccl.dict) = {name: "许可证模式"};
+
+    MODE_UNSPECIFIED = 0;
+    MODE_CLOUD = 1 [(ccl.item) = {value: "C", name: "云许可", description: "基于云服务的许可证模式"}];
+    MODE_SOFTWARE = 2 [(ccl.item) = {value: "S", name: "软许可", description: "基于本地软件的许可证模式"}];
+    MODE_HARDWARE = 3 [(ccl.item) = {value: "H", name: "硬件加密许可", description: "基于硬件设备的许可证模式"}];
+    MODE_BLOCKCHAIN = 4 [(ccl.item) = {value: "BC", name: "区块链许可", description: "基于区块链技术的许可证模式"}];
+
+}
+
+// ------------------------------
+// 云许可 (Cloud License) 相关定义
+// ------------------------------
+message CloudLicenseSpec {
+    // 用户标识
+    string user_id = 1;
+}
+
+// ------------------------------
+// 软许可 (Software License) 相关定义
+// ------------------------------
+message SoftwareLicenseSpec {
+    // 设备指纹 (CPU/主板/硬盘哈希)   
+    repeated string device_fingerprint = 1;
+    // 最多绑定设备数（0 表示不限制）
+    uint32 max_device_count = 2 [default = 5];
+    // 使用公钥加密后的AES密钥
+//    bytes encrypted_aes_key = 3;
+}
+
+// ------------------------------
+// 硬件加密许可 (Hardware License) 相关定义
+// ------------------------------
+message HardwareLicenseSpec {
+    // USB加密狗的唯一序列号
+    string usb_dongle_serial = 1;
+    // 使用SM4加密的授权数据   
+    bytes sm4_encrypted_data = 2;
+}
+
+// ------------------------------
+// 区块链许可 (Blockchain License) 相关定义
+// ------------------------------
+message BlockchainLicenseSpec {
+    // 智能合约地址
+    string contract_address = 1;
+    // 对应ERC721/ERC1155的Token ID
+    string token_id = 2;
+    // 链ID (例如: Ethereum Mainnet -> 1)
+    string chain_id = 3;
+}
+
+// 功能点信息
+message FunctionPoint {
+    // 功能点位掩码（对应二进制位的索引,不允许重复（从 0 开始，如 0 → 第0位 → 2^0=1））
+    uint64 bit_mask = 1;
+    // 功能点名称
+    string name = 2;
+    // 功能点描述
+    string description = 3;
+    // 功能点排序
+    int64 sort = 4;
+    // 功能点层级分组（如 "security", "network"）
+    repeated string group = 5;
+}
+
+message FunctionPoints {
+    // 功能点列表
+    repeated FunctionPoint values = 1;
+}
+
+// 授权内容
+message Payload {
+    // 许可证唯一ID（UUID或自定义格式）
+    string license_id = 1;
+    // 产品标识
+    string product_id = 2;
+    // 授权许可模式
+    Mode license_mode = 3 [default = MODE_SOFTWARE];
+    // 许可类型
+    Type license_type = 4 [default = TYPE_INDIVIDUAL];
+    // 颁发时间
+    google.protobuf.Timestamp issued_at = 5;
+    // 过期时间
+    google.protobuf.Timestamp expired_at = 6;
+    // 授权功能列表
+    oneof functions {
+        string functions_value = 7;
+        FunctionPoints functions_list = 8;
     }
-
-    oneof content {
-        bytes raw = 1;
-        Information data = 2;
-    }
-
-    string content_hash = 3;
-}
-
-message GenerateLicenseRequest {
-    // 注册信息
-    Registration registration = 1;
-
-    // 访问令牌
-    string access_token = 2;
-
-    // 动态密码
-    string code = 3;
-}
-
-message License {
-    // 文件名称(不含扩展名)
-    string file_name = 1;
-    // 文件扩展名
-    string file_ext = 2;
-    // 授权截止时间
-    string deadline = 3;
-    // 授权内容
-    bytes file_contents = 4;
-    // 注册文件签名
-    string registration_sign = 5;
-}
-
-message GenerateLicenseResponse {
-    bool success = 1;
-    oneof result {
-        // 如果成功，返回许可证
-        License license = 2;
-        // 如果失败，返回错误信息
-        string error_message = 3;
+    // 附加扩展字段信息（键值对,使用Google的Any类型）
+    repeated google.protobuf.Any extensions = 9;
+    // 使用 one of 来包含特定于授权模式的信息
+    oneof spec {
+        CloudLicenseSpec cloud_spec = 10;
+        SoftwareLicenseSpec software_spec = 11;
+        HardwareLicenseSpec hardware_spec = 12;
+        BlockchainLicenseSpec blockchain_spec = 13;
     }
 }
 
-service LicenseService {
-    // 生成许可证
-    rpc Generate (GenerateLicenseRequest) returns (GenerateLicenseResponse) {}
+// 签名信息
+message LicenseSignature {
+    // 签名算法
+    SignatureAlgorithm algorithm = 1;
+    // 签名值
+    bytes signature = 2;
+    // 公钥（可选）
+    bytes public_key = 3;
+}
+
+// 签名算法
+enum SignatureAlgorithm {
+    SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
+    // SM2-SM3
+    SIGNATURE_ALGORITHM_SM2_SM3 = 1;
+    // HMAC-SHA256
+    SIGNATURE_ALGORITHM_HMAC_SHA256 = 2;
+    // RSA-SHA256
+    SIGNATURE_ALGORITHM_RSA_SHA256 = 3;
+    // ECDSA-P256
+    SIGNATURE_ALGORITHM_ECDSA_P256 = 4;
+}
+
+// 安全块
+message SecurityBlock {
+    // 签名算法
+    string signature_algorithm_id = 1;
+    // 签名长度
+    uint32 signature_length = 2;
+    // 签名值
+    bytes signature_data = 3;
+
+    // 加密算法
+    string encryption_algorithm_id = 4;
+    // 加密长度
+    uint32 encrypted_data_length = 5;
+    // 加密数据
+    bytes encrypted_data = 6;
 }

@@ -6,6 +6,7 @@ import (
 )
 
 type Header interface {
+	Raw
 	// GetMagicNumber 标识文件类型
 	GetMagicNumber() [4]byte
 	// GetMinorVersion 次要版本号
@@ -14,14 +15,12 @@ type Header interface {
 	GetMajorVersion() uint8
 	// GetConstantPoolCount 常量池计数
 	GetConstantPoolCount() uint16
-	// GetPayloadOffset 授权信息块偏移
-	GetPayloadOffset() uint32
-	// GetSecurityOffset 安全块偏移
-	GetSecurityOffset() uint32
+	// GetPayloadLength 授权信息块字节长度
+	GetPayloadLength() uint32
+	// GetSecurityLength 安全块长度
+	GetSecurityLength() uint32
 	// GetTotalLength 文件总长度
 	GetTotalLength() uint32
-
-	Bytes() []byte
 }
 
 func NewHeader(opts ...HeaderOptions) Header {
@@ -45,10 +44,10 @@ type header struct {
 	majorVersion byte
 	// 常量池计数（2 字节，16 位无符号整数）
 	constantPoolCount [2]byte
-	// 授权信息块偏移（4 字节，32 位无符号整数）
-	payloadOffset [4]byte
-	// 安全块偏移（4 字节，32 位无符号整数）
-	securityOffset [4]byte
+	// 授权信息块长度（4 字节，32 位无符号整数）
+	payloadLength [4]byte
+	// 安全块长度（4 字节，32 位无符号整数）
+	securityLength [4]byte
 	// 文件总长度（4 字节，32 位无符号整数）
 	totalLength [4]byte
 }
@@ -69,19 +68,19 @@ func (h *header) GetConstantPoolCount() uint16 {
 	return binary.BigEndian.Uint16(h.constantPoolCount[:])
 }
 
-func (h *header) GetPayloadOffset() uint32 {
-	return binary.BigEndian.Uint32(h.payloadOffset[:])
+func (h *header) GetPayloadLength() uint32 {
+	return binary.BigEndian.Uint32(h.payloadLength[:])
 }
 
-func (h *header) GetSecurityOffset() uint32 {
-	return binary.BigEndian.Uint32(h.securityOffset[:])
+func (h *header) GetSecurityLength() uint32 {
+	return binary.BigEndian.Uint32(h.securityLength[:])
 }
 
 func (h *header) GetTotalLength() uint32 {
 	return binary.BigEndian.Uint32(h.totalLength[:])
 }
 
-func (h *header) Bytes() []byte {
+func (h *header) RawBytes() ([]byte, error) {
 	result := make([]byte, 20)
 	for i, b := range h.magicNumber {
 		result[i] = b
@@ -91,54 +90,54 @@ func (h *header) Bytes() []byte {
 	for i, b := range h.constantPoolCount {
 		result[6+i] = b
 	}
-	for i, b := range h.payloadOffset {
+	for i, b := range h.payloadLength {
 		result[8+i] = b
 	}
-	for i, b := range h.securityOffset {
+	for i, b := range h.securityLength {
 		result[12+i] = b
 	}
 	for i, b := range h.totalLength {
 		result[16+i] = b
 	}
-	return result
+	return result, nil
 }
 
 type HeaderOptions func(h *header)
 
-func WithVersion(major, minor uint8) HeaderOptions {
+func HeaderWithVersion(major, minor uint8) HeaderOptions {
 	return func(h *header) {
 		h.minorVersion = minor
 		h.majorVersion = major
 	}
 }
 
-func WithConstantPool(count uint16) HeaderOptions {
+func HeaderWithConstantPool(count uint16) HeaderOptions {
 	return func(h *header) {
 		binary.BigEndian.PutUint16(h.constantPoolCount[:], count)
 	}
 }
 
-func WithPayload(offset uint32) HeaderOptions {
+func HeaderWithPayload(length uint32) HeaderOptions {
 	return func(h *header) {
-		binary.BigEndian.PutUint32(h.payloadOffset[:], offset)
+		binary.BigEndian.PutUint32(h.payloadLength[:], length)
 	}
 }
 
-func WithSecurity(offset uint32) HeaderOptions {
+func HeaderWithSecurity(length uint32) HeaderOptions {
 	return func(h *header) {
-		binary.BigEndian.PutUint32(h.securityOffset[:], offset)
+		binary.BigEndian.PutUint32(h.securityLength[:], length)
 	}
 }
 
-func WithTotal(length uint32) HeaderOptions {
+func HeaderWithTotal(length uint32) HeaderOptions {
 	return func(h *header) {
 		binary.BigEndian.PutUint32(h.totalLength[:], length)
 	}
 }
 
-// ParseHeader 从一个 20 字节的数组中解析出 Header 信息
+// HeaderFrom 从一个 20 字节的数组中解析出 Header 信息
 // 它会严格按照结构体定义的字段顺序和大小进行解析
-func ParseHeader(bytes [20]byte) (Header, error) {
+func HeaderFrom(bytes [20]byte) (Header, error) {
 	// 1. 创建一个新的 header 实例作为解析目标
 	h := &header{}
 
@@ -163,11 +162,11 @@ func ParseHeader(bytes [20]byte) (Header, error) {
 	h.constantPoolCount[0] = bytes[6]
 	h.constantPoolCount[1] = bytes[7]
 
-	// Payload Offset (4 bytes, 8-11)
-	copy(h.payloadOffset[:], bytes[8:12])
+	// Payload Length (4 bytes, 8-11)
+	copy(h.payloadLength[:], bytes[8:12])
 
-	// Security Offset (4 bytes, 12-15)
-	copy(h.securityOffset[:], bytes[12:16])
+	// Security Length (4 bytes, 12-15)
+	copy(h.securityLength[:], bytes[12:16])
 
 	// Total Length (4 bytes, 16-19)
 	copy(h.totalLength[:], bytes[16:20])

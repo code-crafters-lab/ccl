@@ -14,6 +14,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
+	github.com/wenzhenxi/gorsa v0.0.0-20230530123828-0320cce15d81
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.46.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250922171735-9219d122eba9

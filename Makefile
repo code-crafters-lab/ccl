@@ -21,12 +21,12 @@ init: core_api
 
 .PHONY: extension_generator
 extension_generator:
-	@echo "[*] 正在生成扩展代码..."
+	@echo " ✅ 正在生成扩展代码..."
 	@make generate -C internal/protoc
 
 .PHONY: core_grpc_dependencies
 core_grpc_dependencies:
-	@echo "[*] 正在安装依赖插件..."
+	@echo " ✅ 正在安装依赖插件..."
 #	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.9 						# https://pkg.go.dev/google.golang.org/protobuf/cmd/protoc-gen-go?tab=versions
 #	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1 						# https://pkg.go.dev/google.golang.org/grpc/cmd/protoc-gen-go-grpc?tab=versions
 #	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.27.0	# https://pkg.go.dev/github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway?tab=versions
@@ -37,7 +37,7 @@ core_grpc_dependencies:
 
 .PHONY: core_api
 core_api: extension_generator core_grpc_dependencies
-	@echo "[*] 正在生成核心代码..."
+	@echo " ✅ 正在生成核心代码..."
 	@buf generate
 	@mkdir -p pkg/grpc
 	@cp -r .artifacts/grpc pkg

@@ -19,21 +19,22 @@ func TestCreateLicense(t *testing.T) {
 	_, err := fmt.Sscanf(hexStr, "%x", &magicNumber)
 
 	// 1. 创建LicenseFile
-	header := &license.LicenseHeader{
-		MagicNumber: &magicNumber,
-	}
+	//header := &license.Header{
+	//	MagicNumber: &magicNumber,
+	//}
+	payload := &license.Payload{}
 	//licenseFile := &license.LicenseFile{
 	//	Header: header,
 	//}
 
 	// 2. 序列化（proto.Marshal）
-	data, err := proto.Marshal(header)
+	payloadBytes, err := proto.Marshal(payload)
 	assert.Nil(t, err)
 
 	file, err := os.Create("test.lic")
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = file.Write(data)
+	_, err = file.Write(payloadBytes)
 	assert.Nil(t, err)
 }

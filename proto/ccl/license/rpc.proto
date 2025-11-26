@@ -1,0 +1,99 @@
+edition = "2023";
+
+option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/license";
+
+package ccl.license;
+
+import "google/api/annotations.proto";
+
+message PingRequest {}
+
+message PingResponse {
+}
+
+// 注册文件信息
+message Registration {
+    message Information {
+        // 机器码
+        string machine_code = 1 [json_name = "machinecode"];
+        // MAC 地址
+        string mac_address = 2 [json_name = "macaddress"];
+        // 应用名称
+        string app_name = 3 [json_name = "appname"];
+        // 应用版本
+        string version = 4 [json_name = "version"];
+        // 厂商名称
+        string vendor = 5 [json_name = "vendor"];
+    }
+
+    oneof content {
+        bytes raw = 1;
+        Information data = 2;
+    }
+
+    string content_hash = 3;
+}
+
+message GenerateLicenseRequest {
+    // 注册信息
+    repeated Registration registration = 1;
+    // 访问令牌
+    string access_token = 2;
+    // 动态密码
+    string code = 3;
+}
+
+message License {
+    // 文件名称(不含扩展名)
+    string file_name = 1;
+    // 文件扩展名
+    string file_ext = 2;
+    // 授权截止时间
+    string deadline = 3;
+    // 授权内容
+    bytes file_contents = 4;
+    // 注册文件签名
+    string registration_sign = 5;
+}
+
+message LicenseData {
+    repeated License values = 2;
+}
+
+message Error {
+    oneof code {
+        int32 number_value = 1;
+        string string_value = 2;
+    }
+    string message = 3;
+}
+
+message GenerateLicenseResponse {
+    bool success = 1;
+    uint64 total = 2;
+    oneof data {
+        // 如果成功，返回许可证
+        LicenseData license = 3;
+        // 如果失败，返回错误信息
+        Error error = 4;
+    }
+}
+
+service LicenseService {
+
+    // 检查服务是否可用
+    rpc Ping (PingRequest) returns (PingResponse) {
+        option (google.api.http) = {
+            get: "/v2/ping",
+        };
+    };
+
+    // 生成许可证文件
+    rpc GenerateFile (GenerateLicenseRequest) returns (GenerateLicenseResponse) {
+        option (google.api.http) = {
+            post: "/v2/license",
+            body: "*"
+        };
+    }
+
+}
