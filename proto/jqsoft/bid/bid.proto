@@ -52,7 +52,7 @@ enum ExpenseType {
     EXPENSE_TYPE_UNSPECIFIED = 0 [(ccl.item) = {name: "其他费用", value: "OE",description: "覆盖其他支出项（如标书快递费、远程开标网络费、印刷装订费等），需备注用途"}];
     EXPENSE_TYPE_REGISTRATION_FEE = 1 [(ccl.item) = {name: "报名费", value: "RF"}];
     EXPENSE_TYPE_TENDER_DOCUMENT_FEE = 2 [(ccl.item) = {name: "标书工本费", value: "DF"}];
-    EXPENSE_TYPE_CA_CERTIFICATE_FEE = 3 [(ccl.item) = {name: "CA费用", value: "CA"}];
+    EXPENSE_TYPE_CA_CERTIFICATE_FEE = 3 [(ccl.item) = {name: "CA 费用", value: "CA"}];
     EXPENSE_TYPE_EXPERT_FEE = 4 [(ccl.item) = {name: "专家评审费", value: "EF"}];
     EXPENSE_TYPE_BID_SERVICE_FEE = 5 [(ccl.item) = {name: "中标服务费", value: "BS"}];
     EXPENSE_TYPE_BID_BOND = 6 [(ccl.item) = {name: "投标保证金", value: "BB"}];
