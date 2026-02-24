@@ -13,14 +13,16 @@ type Header interface {
 	GetMinorVersion() uint8
 	// GetMajorVersion 主要版本号
 	GetMajorVersion() uint8
-	// GetConstantPoolCount 常量池计数
-	GetConstantPoolCount() uint16
+	// GetReserved 保留字节
+	GetReserved() [2]byte
 	// GetPayloadLength 授权信息块字节长度
 	GetPayloadLength() uint32
 	// GetSecurityLength 安全块长度
 	GetSecurityLength() uint32
-	// GetTotalLength 文件总长度
-	GetTotalLength() uint32
+	// GetVendor 获取供应商标识
+	GetVendor() [4]byte
+	// GetVendorString 获取供应商标识字符串
+	GetVendorString() string
 }
 
 func NewHeader(opts ...HeaderOptions) Header {
@@ -42,14 +44,14 @@ type header struct {
 	minorVersion byte
 	// 主要版本号（1 字节，8 位无符号整数）
 	majorVersion byte
-	// 常量池计数（2 字节，16 位无符号整数）
-	constantPoolCount [2]byte
+	// 保留字节（2 字节）
+	reserved [2]byte
 	// 授权信息块长度（4 字节，32 位无符号整数）
 	payloadLength [4]byte
 	// 安全块长度（4 字节，32 位无符号整数）
 	securityLength [4]byte
-	// 文件总长度（4 字节，32 位无符号整数）
-	totalLength [4]byte
+	// 4 字节厂商标记，全为 0 表示无厂商
+	vendor [4]byte
 }
 
 func (h *header) GetMagicNumber() [4]byte {
@@ -64,8 +66,8 @@ func (h *header) GetMajorVersion() uint8 {
 	return h.majorVersion
 }
 
-func (h *header) GetConstantPoolCount() uint16 {
-	return binary.BigEndian.Uint16(h.constantPoolCount[:])
+func (h *header) GetReserved() [2]byte {
+	return h.reserved
 }
 
 func (h *header) GetPayloadLength() uint32 {
@@ -76,8 +78,15 @@ func (h *header) GetSecurityLength() uint32 {
 	return binary.BigEndian.Uint32(h.securityLength[:])
 }
 
-func (h *header) GetTotalLength() uint32 {
-	return binary.BigEndian.Uint32(h.totalLength[:])
+func (h *header) GetVendor() [4]byte {
+	return h.vendor
+}
+
+func (h *header) GetVendorString() string {
+	if h.vendor == [4]byte{} {
+		return ""
+	}
+	return fmt.Sprintf("%x", h.vendor)
 }
 
 func (h *header) RawBytes() ([]byte, error) {
@@ -87,7 +96,7 @@ func (h *header) RawBytes() ([]byte, error) {
 	}
 	result[4] = h.minorVersion
 	result[5] = h.majorVersion
-	for i, b := range h.constantPoolCount {
+	for i, b := range h.reserved {
 		result[6+i] = b
 	}
 	for i, b := range h.payloadLength {
@@ -96,7 +105,7 @@ func (h *header) RawBytes() ([]byte, error) {
 	for i, b := range h.securityLength {
 		result[12+i] = b
 	}
-	for i, b := range h.totalLength {
+	for i, b := range h.vendor {
 		result[16+i] = b
 	}
 	return result, nil
@@ -108,12 +117,6 @@ func HeaderWithVersion(major, minor uint8) HeaderOptions {
 	return func(h *header) {
 		h.minorVersion = minor
 		h.majorVersion = major
-	}
-}
-
-func HeaderWithConstantPool(count uint16) HeaderOptions {
-	return func(h *header) {
-		binary.BigEndian.PutUint16(h.constantPoolCount[:], count)
 	}
 }
 
@@ -129,9 +132,9 @@ func HeaderWithSecurity(length uint32) HeaderOptions {
 	}
 }
 
-func HeaderWithTotal(length uint32) HeaderOptions {
+func HeaderWithVendor(vendor [4]byte) HeaderOptions {
 	return func(h *header) {
-		binary.BigEndian.PutUint32(h.totalLength[:], length)
+		h.vendor = vendor
 	}
 }
 
@@ -157,10 +160,8 @@ func HeaderFrom(bytes [20]byte) (Header, error) {
 	// Major Version (1 byte, 5)
 	h.majorVersion = bytes[5]
 
-	// Constant Pool Count (2 bytes, 6-7)
-	// 使用 binary.BigEndian.Uint16 来解析这两个字节
-	h.constantPoolCount[0] = bytes[6]
-	h.constantPoolCount[1] = bytes[7]
+	// Reserved (2 bytes, 6-7)
+	copy(h.reserved[:], bytes[6:7])
 
 	// Payload Length (4 bytes, 8-11)
 	copy(h.payloadLength[:], bytes[8:12])
@@ -169,7 +170,7 @@ func HeaderFrom(bytes [20]byte) (Header, error) {
 	copy(h.securityLength[:], bytes[12:16])
 
 	// Total Length (4 bytes, 16-19)
-	copy(h.totalLength[:], bytes[16:20])
+	copy(h.vendor[:], bytes[16:20])
 
 	// 4. 返回解析成功的 header 实例
 	return h, nil

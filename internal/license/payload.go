@@ -45,6 +45,7 @@ type CustomPEMHeader func(headers map[string]string)
 
 const (
 	HeaderProcType           = "Proc-Type"
+	HeaderDEKInfo            = "DEK-Info"
 	HeaderVersion            = "Version"
 	HeaderDeadline           = "Deadline"
 	HeaderLicenseRestriction = "License-Restriction"
