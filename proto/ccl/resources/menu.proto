@@ -7,20 +7,28 @@ package ccl.resources;
 import "ccl/authority/metadata.proto";
 import "ccl/resources/route.proto";
 
-/**
- * 菜单资源
- */
+// 菜单资源
 message Menu {
-    string id = 1;                                  // 菜单 ID
-    string pid = 2;                                 // 父级菜单 ID
-    string name = 3;                                // 菜单名称
-    ccl.authority.AuthorityMetadata authority_metadata = 4;       // 菜单权限标识
-    string icon = 5;                                // 菜单图标
-    int32 sort = 6;                                 // 菜单排序
-    string description = 7;                         // 菜单描述
-    Route route = 8;                                // 页面路由或外链路由
-    repeated Menu sub_menus = 9;                    // 子菜单列表
-    Menu parent_menu = 10;                 // 父菜单
+    // 菜单 ID
+    string id = 1;
+    // 父级菜单 ID
+    string pid = 2;
+    // 菜单名称
+    string name = 3;
+    // 菜单权限标识
+    ccl.authority.AuthorityMetadata authority_metadata = 4;
+    // 菜单图标
+    string icon = 5;
+    // 菜单排序
+    int32 sort = 6;
+    // 菜单描述
+    string description = 7;
+//    // 页面路由或外链路由
+//    Route route = 8;
+//    // 子菜单列表
+//    repeated Menu sub_menus = 9;
+//    // 父菜单
+//    Menu parent_menu = 10;
 }
 
 

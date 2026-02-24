@@ -15,20 +15,23 @@ enum AppState {
     APP_STATE_UNSPECIFIED = 0;
     APP_STATE_ACTIVE = 1 [(ccl.item) = {name: "启用"}];
     APP_STATE_INACTIVE = 2 [(ccl.item) = {name: "停用"}];
-    APP_STATE_REMOVED = 3 [(ccl.item) = {name: "删除",description: "逻辑删除"}];
+    APP_STATE_REMOVED = 3 [(ccl.item) = {name: "删除", description: "逻辑删除"}];
 }
 
-/**
- * 应用资源
- */
+// 应用资源
 message App {
-    string id = 1;                          // 应用 ID
-    string name = 2;                        // 应用名称
-    string description = 3;                 // 应用描述
-    google.protobuf.Any configuration = 4;  // 应用相关配置
-    repeated Menu menus = 5;                // 菜单列表
-    repeated Route routes = 6;        // 路由列表（包含菜单中未匹配上路由）
-
+    // 应用 ID
+    string id = 1;
+    // 应用名称
+    string name = 2;
+    // 应用描述
+    string description = 3;
+    // 应用相关配置
+    google.protobuf.Any configuration = 4;
+//    // 菜单列表
+//    repeated Menu menus = 5;
+//    // 路由列表（包含菜单中未匹配上路由）
+//    repeated Route routes = 6;
     reserved 7 to 10;
 }
 

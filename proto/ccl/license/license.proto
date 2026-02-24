@@ -64,9 +64,9 @@ message SoftwareLicenseSpec {
 // 硬件加密许可 (Hardware License) 相关定义
 // ------------------------------
 message HardwareLicenseSpec {
-    // USB加密狗的唯一序列号
+    // USB 加密狗的唯一序列号
     string usb_dongle_serial = 1;
-    // 使用SM4加密的授权数据   
+    // 使用 SM4 加密的授权数据   
     bytes sm4_encrypted_data = 2;
 }
 

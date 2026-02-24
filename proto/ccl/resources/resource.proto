@@ -2,6 +2,11 @@ edition = "2023";
 
 package ccl.resources;
 
+import "ccl/resources/app.proto";
+import "ccl/resources/data_access.proto";
+import "ccl/resources/menu.proto";
+import "ccl/resources/operation.proto";
+import "ccl/resources/route.proto";
 import "extension/dict.proto";
 
 option go_package = "github.com/code-crafters-lab/ccl/pkg/grpc/resources";
@@ -24,7 +29,7 @@ enum ResourceType {
     RESOURCE_TYPE_EXTERNAL_LINK = 5 [(ccl.item) = {name: "外链"}];
     // 页面资源
     RESOURCE_TYPE_PAGE = 6 [(ccl.item) = {name: "页面"}];
-    //应用资源
+    // 应用资源
     RESOURCE_TYPE_APP = 7 [(ccl.item) = {name: "应用"}];
     // 系统资源
     RESOURCE_TYPE_SYSTEM = 7 [
@@ -51,26 +56,43 @@ message ResourceUrn {
     string ext = 6;
 }
 
-//message ResourceS {
-//    string authority_id = 1;            // 权限 ID
-//    string id = 2;                      // 资源 ID
-//    string pid = 3;                     // 父资源 ID
-//    ResourceType type = 4;              // 资源类型
-//    string name = 5;                    // 资源名称
-//    int32 sort = 6;                     // 资源排序
-//    oneof data {// 资源数据
-//        App app = 11;                   // 应用资源
-//        Menu menu = 12;                 // 菜单资源
-//        Operation operation = 13;       // 操作资源
-//        DataAccess data_access = 14;     // 数据资源
-//        ApiRoute api = 15;        // 接口资源
-//        LinkRoute link = 16;      // 外链资源
-//        PageRoute page = 17;      // 页面资源
-//    }
-//    //    repeated Resource children = 7;    // 子资源集合
-//
-//    reserved 8 to 10, 18 to 20;
-//}
+message Resource {
+    // 资源权限 ID
+    string authority_id = 1;
+    // 资源 ID
+    string id = 2;
+    // 父资源 ID
+    string pid = 3;
+    // 资源类型
+    ResourceType type = 4;
+    // 资源名称
+    string name = 5;
+    // 资源排序
+    int32 sort = 6;
+
+    // 资源数据
+    oneof data {
+        // 应用资源
+        App app = 11;
+        // 菜单资源
+        Menu menu = 12;
+        // 操作资源
+        Operation operation = 13;
+        // 数据资源
+        DataAccess data_access = 14;
+        // 接口资源
+        ApiRoute api = 15;
+        // 外链资源
+        LinkRoute link = 16;
+        // 页面资源
+        PageRoute page = 17;
+    }
+
+    // 子资源集合
+    repeated Resource children = 7;
+
+    reserved 8 to 10, 18 to 20;
+}
 
 
 

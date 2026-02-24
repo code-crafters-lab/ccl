@@ -1,10 +1,10 @@
 edition = "2023";
 
 
-package resources;
+package ccl.resources;
 
 import "google/protobuf/empty.proto";
-import "resources/resource.proto";
+import "ccl/resources/resource.proto";
 
 message ResourceTreeRequest {
     // 树形数据根节点 ID
@@ -44,10 +44,10 @@ message ResourceDeleteResponse {
 }
 
 
-//service ResourceService {
-//    // 获取资源树
-//    rpc GetResourceTree (ResourceTreeRequest) returns (ResourceTreeResponse);
-//
+service ResourceService {
+    // 获取资源树
+    rpc GetResourceTree (ResourceTreeRequest) returns (ResourceTreeResponse);
+
 //    // 创建资源
 //    rpc CreateResource (ResourceCreateRequest) returns (ResourceCreateResponse);
 //
@@ -62,4 +62,4 @@ message ResourceDeleteResponse {
 //
 //    // 获取页面路由
 //    rpc GetPageRoute (google.protobuf.Empty) returns (google.protobuf.Empty);
-//}
+}
