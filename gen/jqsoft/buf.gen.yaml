@@ -8,6 +8,9 @@ managed:
     - file_option: java_package
       path: jqsoft/bid/bid.proto
       value: net.jqsoft.cds.bid
+    - file_option: java_package
+      path: jqsoft/task/log.proto
+      value: net.jqsoft.cds.task
 plugins:
   - local: [ "go", "run", "../../internal/protoc/protoc-gen-dict" ]
     out: .out

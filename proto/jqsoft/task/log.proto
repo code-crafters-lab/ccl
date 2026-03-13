@@ -1,0 +1,22 @@
+edition = "2023";
+
+package jqsoft.task;
+
+import "extension/dict.proto";
+
+option go_package = "github.com/code-crafters-lab/jqsoft/bid/pkg/grpc";
+option java_package = "net.jqsoft.cds.task.enums";
+
+// 任务流转业务类型
+enum TaskLogBizType {
+    option (ccl.dict) = {name: "任务流转业务类型"};
+
+    TASK_LOG_BIZ_TYPE_UNSPECIFIED = 0 [(ccl.item) = {value: "0", description: "用于无法匹配到类型的情况，需人工核实后调整"}];
+    TASK_LOG_BIZ_TYPE_PROCUREMENT = 1 [(ccl.item) = {name: "商品采购", value: "1"}];
+    TASK_LOG_BIZ_TYPE_TENDER = 2 [(ccl.item) = {name: "项目投标", value: "2"}];
+}
+
+
+
+
+
