@@ -9,6 +9,8 @@ type Header interface {
 	Raw
 	// GetMagicNumber 标识文件类型
 	GetMagicNumber() [4]byte
+	// GetVendor 获取供应商标识
+	GetVendor() [4]byte
 	// GetMinorVersion 次要版本号
 	GetMinorVersion() uint8
 	// GetMajorVersion 主要版本号
@@ -19,8 +21,7 @@ type Header interface {
 	GetPayloadLength() uint32
 	// GetSecurityLength 安全块长度
 	GetSecurityLength() uint32
-	// GetVendor 获取供应商标识
-	GetVendor() [4]byte
+
 	// GetVendorString 获取供应商标识字符串
 	GetVendorString() string
 }
